@@ -1,0 +1,16 @@
+# Dependencias y archivos generados
+node_modules/
+*.log
+playwright-report/
+test-results/
+
+# Contraseñas y configuración local: nunca se suben
+.env
+
+# Material de apoyo que no forma parte del sistema: se queda solo en esta computadora
+CLAUDE.md
+docs/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

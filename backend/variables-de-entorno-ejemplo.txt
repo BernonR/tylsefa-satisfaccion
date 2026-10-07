@@ -1,0 +1,17 @@
+# Copie este archivo con el nombre .env y complete los valores.
+# El archivo .env nunca se sube al repositorio ni se pega en la tesis.
+
+# Cadena de conexión de Neon (Dashboard del proyecto, botón Connect)
+DATABASE_URL=
+
+# Texto largo y aleatorio para firmar las sesiones
+SESION_SECRETO=
+
+# Cuenta de correo del proyecto
+CORREO_SERVIDOR=
+CORREO_PUERTO=587
+CORREO_USUARIO=
+CORREO_CLAVE=
+
+# Dirección de la interfaz publicada, para permitir sus peticiones
+ORIGEN_PERMITIDO=http://localhost:3000

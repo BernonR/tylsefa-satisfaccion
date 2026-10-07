@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Encuesta de atención | Tylsefa</title>
+  <link href="vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+  <link href="vendor/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/tylsefa.css" rel="stylesheet">
+</head>
+<body>
+  <div class="escena">
+    <span class="luz luz-1"></span><span class="luz luz-2"></span><span class="luz luz-3"></span>
+    <!-- Cruz ansada del logo de Tylsefa -->
+    <svg class="ansada" viewBox="0 0 240 380" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="trazo" x1="30" y1="20" x2="210" y2="360" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#9fe6ff"/><stop offset="0.38" stop-color="#1194cb"/><stop offset="0.78" stop-color="#0a4f86"/><stop offset="1" stop-color="#06263f"/>
+        </linearGradient>
+        <linearGradient id="brillo" x1="60" y1="20" x2="150" y2="200" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#ffffff" stop-opacity="0.85"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g stroke-linecap="round" stroke-linejoin="round">
+        <path d="M120 178 C70 132 58 34 120 34 C182 34 170 132 120 178 Z M34 196 H206 M120 178 V350" stroke="url(#trazo)" stroke-width="34"/>
+        <path d="M104 150 C76 116 72 50 116 46" stroke="url(#brillo)" stroke-width="5"/>
+        <path d="M40 188 H112" stroke="url(#brillo)" stroke-width="4" opacity="0.7"/>
+      </g>
+    </svg>
+
+    <main class="terminal">
+      <section class="terminal-marca">
+        <img class="logo" src="img/logo-tylsefa.png" alt="Tylsefa" width="698" height="283">
+        <h1>Cuéntenos cómo le atendimos</h1>
+        <p>Ingrese el número que aparece en su cotización. Le tomará menos de un minuto.</p>
+        <ol class="pasos" aria-label="Pasos de la encuesta">
+          <li class="actual" aria-current="step"><span class="n">1</span>Número</li>
+          <li><span class="n">2</span>Calificación</li>
+          <li><span class="n">3</span>Listo</li>
+        </ol>
+      </section>
+
+      <section class="tarjeta-vidrio compacta" aria-labelledby="etiqueta-visor">
+        <span class="visor-etiqueta" id="etiqueta-visor">Número de cotización</span>
+        <div class="visor vacio" id="visor" role="status" aria-live="polite">Toque los números</div>
+
+        <div class="teclado" id="teclado">
+          <button type="button" class="tecla" data-d="1">1</button>
+          <button type="button" class="tecla" data-d="2">2</button>
+          <button type="button" class="tecla" data-d="3">3</button>
+          <button type="button" class="tecla" data-d="4">4</button>
+          <button type="button" class="tecla" data-d="5">5</button>
+          <button type="button" class="tecla" data-d="6">6</button>
+          <button type="button" class="tecla" data-d="7">7</button>
+          <button type="button" class="tecla" data-d="8">8</button>
+          <button type="button" class="tecla" data-d="9">9</button>
+          <button type="button" class="tecla secundaria" id="limpiar">Limpiar</button>
+          <button type="button" class="tecla" data-d="0">0</button>
+          <button type="button" class="tecla secundaria" id="borrar" aria-label="Borrar el último número"><i class="bi bi-backspace" aria-hidden="true"></i></button>
+        </div>
+
+        <button type="button" class="btn btn-claro btn-grande w-100" id="continuar" disabled>
+          <span class="spinner-border spinner-border-sm me-2 d-none" id="cargando" aria-hidden="true"></span>
+          <span id="continuar-texto">Continuar</span>
+          <i class="bi bi-arrow-right ms-1" id="flecha" aria-hidden="true"></i>
+        </button>
+        <p class="mensaje-terminal" id="mensaje" role="alert">Si no tiene su cotización a la mano, solicítela al personal.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Comportamiento del prototipo. La validación real del número la hace el servidor.
+    const MAXIMO = 8;
+    const AYUDA = 'Si no tiene su cotización a la mano, solicítela al personal.';
+    const visor = document.getElementById('visor');
+    const continuar = document.getElementById('continuar');
+    const mensaje = document.getElementById('mensaje');
+    let numero = '';
+
+    function pintar() {
+      visor.textContent = numero || 'Toque los números';
+      visor.classList.toggle('vacio', numero === '');
+      visor.classList.remove('con-error');
+      continuar.disabled = numero === '';
+      mensaje.textContent = AYUDA;
+      mensaje.classList.remove('es-error');
+    }
+    function mostrarError() {
+      visor.classList.add('con-error');
+      mensaje.textContent = 'No encontramos ese número. Verifíquelo en su cotización o consulte al personal.';
+      mensaje.classList.add('es-error');
+    }
+    document.getElementById('teclado').addEventListener('click', (evento) => {
+      const tecla = evento.target.closest('.tecla');
+      if (!tecla) return;
+      if (tecla.dataset.d !== undefined) { if (numero.length < MAXIMO) numero += tecla.dataset.d; }
+      else if (tecla.id === 'borrar') numero = numero.slice(0, -1);
+      else if (tecla.id === 'limpiar') numero = '';
+      pintar();
+    });
+    continuar.addEventListener('click', () => {
+      // Aquí irá la llamada al servicio que valida la cotización.
+      // En el prototipo, el número 0000 simula una cotización que no existe.
+      if (numero === '0000') { mostrarError(); return; }
+      window.location.href = 'terminal-calificacion.html';
+    });
+  </script>
+</body>
+</html>
