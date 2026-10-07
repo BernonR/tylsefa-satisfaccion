@@ -1,0 +1,18 @@
+{
+  "name": "tylsefa-satisfaccion",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sistema web para la medición de la satisfacción del cliente y la gestión de casos de servicio - Tylsefa",
+  "scripts": {
+    "preparar": "npm install && npm install --prefix backend && npx playwright install chromium",
+    "servidor": "npm start --prefix backend",
+    "pruebas": "playwright test",
+    "reporte": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
