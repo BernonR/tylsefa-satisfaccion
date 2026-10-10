@@ -70,6 +70,8 @@ CREATE TABLE cotizacion (
     id_cliente             INTEGER NOT NULL REFERENCES empresa_cliente (id_cliente),
     id_supervisor_registro INTEGER NOT NULL REFERENCES usuario (id_usuario),
     fecha_hora             TIMESTAMPTZ NOT NULL DEFAULT now(),
+    -- Monto en quetzales: permite ponderar la insatisfaccion y calcular el ingreso expuesto
+    monto_cotizado         NUMERIC(12,2) NOT NULL CHECK (monto_cotizado > 0),
     estado                 VARCHAR(15) NOT NULL DEFAULT 'pendiente'
                            CHECK (estado IN ('pendiente', 'respondida', 'anulada')),
     motivo_anulacion       VARCHAR(200),
