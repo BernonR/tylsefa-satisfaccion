@@ -3,6 +3,10 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './pruebas',
+  testMatch: '**/*.spec.js',
+  // Crea las cuentas de prueba en la base de desarrollo antes de empezar.
+  globalSetup: require.resolve('./pruebas/apoyo/preparar.js'),
+  workers: 1,
   fullyParallel: false,
   retries: 0,
   reporter: [['list'], ['html', { open: 'never' }]],

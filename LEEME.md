@@ -6,24 +6,33 @@ Sistema web para la medición de la satisfacción del cliente y la gestión de c
 
 | Carpeta | Contenido |
 |---|---|
-| `frontend` | Las pantallas del sistema. Para verlas, abra `index.html` con doble clic. |
-| `backend` | Los servicios de la aplicación. Aún sin construir. |
-| `base-de-datos` | El archivo que crea las tablas en PostgreSQL. |
-| `docs` | Requerimientos, casos de uso, diagramas y la tesis modelo. |
+| `frontend` | Las pantallas del sistema (HTML, CSS y JavaScript). En la publicación las sirve Vercel. |
+| `backend` | El servidor en Node.js con Express. En la publicación lo atiende Render. |
+| `base-de-datos` | El archivo que crea las tablas en PostgreSQL (Neon). |
+| `pruebas` | Las pruebas automáticas con Playwright. |
 
-## Pantallas disponibles
+## Comandos
 
-| Archivo | Pantalla |
+| Comando | Para qué sirve |
 |---|---|
-| `index.html` | Inicio de sesión |
-| `terminal.html` | Terminal de autoservicio |
-| `cotizaciones.html` | Registro de cotizaciones |
-| `casos.html` | Gestión de casos |
-| `indicadores.html` | Tablero de indicadores |
-| `catalogos.html` | Catálogos |
+| `npm run preparar` | Instala las librerías y el navegador de pruebas. Se corre una sola vez. |
+| `npm run servidor` | Enciende el sistema en http://localhost:3000 |
+| `npm run pruebas` | Corre las pruebas unitarias y las de interfaz. |
+| `npm run reporte` | Abre el reporte de la última corrida de pruebas. |
+| `npm run crear-admin --prefix backend` | Crea la cuenta del administrador en la base de desarrollo, o le cambia la contraseña. |
+| `npm run generar-secreto --prefix backend` | Genera un valor para `SESION_SECRETO`. |
 
-Por ahora muestran datos de muestra. Se conectarán a la base de datos durante el desarrollo.
+## Módulos
+
+| Módulo | Estado |
+|---|---|
+| M01 Acceso y seguridad | Inicio y cierre de sesión, menú según el perfil, cierre por inactividad, bitácora |
+| M02 Catálogos | Pendiente |
+| M03 Cotizaciones | Pendiente |
+| M04 Terminal de autoservicio | Pendiente |
+| M05 Casos y notificaciones | Pendiente |
+| M06 Indicadores y reportes | Pendiente |
 
 ## Importante
 
-El archivo `backend/.env` guardará las contraseñas del sistema. No se comparte ni se sube a ningún sitio.
+El archivo `backend/.env` guarda las contraseñas del sistema. No se comparte ni se sube a ningún sitio. Vea `backend/variables-de-entorno-ejemplo.txt`.
