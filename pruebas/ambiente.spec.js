@@ -16,5 +16,6 @@ test.describe('Verificación del ambiente', () => {
     const datos = await respuesta.json();
     expect(datos.base_de_datos).toBe('conectada');
     expect(datos.perfiles).toBe(4);
+    expect(datos.zona_horaria, 'La base debe trabajar en hora de Guatemala').toBe('America/Guatemala');
   });
 });

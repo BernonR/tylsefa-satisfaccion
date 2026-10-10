@@ -19,8 +19,21 @@ try {
 const PUERTO = Number(process.env.PORT) || 3000;
 const CADENA_CONEXION = process.env.DATABASE_URL;
 
+// La conexión siempre va cifrada y verifica el certificado del servidor de Neon.
+// El modo de cifrado se fija aquí y no en la cadena, porque la próxima versión
+// de la librería cambiará cómo interpreta el parámetro sslmode de la cadena.
+function prepararCadena(cadena) {
+  const direccion = new URL(cadena);
+  direccion.searchParams.delete('sslmode');
+  return direccion.toString();
+}
+
 const base = CADENA_CONEXION
-  ? new Pool({ connectionString: CADENA_CONEXION, max: 5 })
+  ? new Pool({
+      connectionString: prepararCadena(CADENA_CONEXION),
+      ssl: { rejectUnauthorized: true },
+      max: 5,
+    })
   : null;
 
 const app = express();
@@ -37,11 +50,14 @@ app.get('/salud', async (peticion, respuesta) => {
     });
   }
   try {
-    const resultado = await base.query('SELECT count(*)::int AS perfiles FROM perfil');
+    const resultado = await base.query(
+      "SELECT (SELECT count(*)::int FROM perfil) AS perfiles, current_setting('TimeZone') AS zona_horaria"
+    );
     respuesta.json({
       estado: 'ok',
       base_de_datos: 'conectada',
       perfiles: resultado.rows[0].perfiles,
+      zona_horaria: resultado.rows[0].zona_horaria,
     });
   } catch (error) {
     // El detalle queda solo en la consola del servidor, nunca en la respuesta.

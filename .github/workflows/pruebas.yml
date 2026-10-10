@@ -1,0 +1,66 @@
+# Pruebas automáticas del sistema Tylsefa.
+# Se ejecutan en cada subida a la rama desarrollo y en cada pull request hacia main.
+# Si algo falla, el pull request queda marcado en rojo y no conviene pasarlo a main.
+
+name: Pruebas
+
+on:
+  push:
+    branches: [desarrollo]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pruebas-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    name: Revisión y pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Cadena de conexión de la rama development de Neon, guardada como secreto en GitHub.
+      DATABASE_URL: ${{ secrets.DATABASE_URL_DESARROLLO }}
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v5
+
+      - name: Preparar Node.js (versión del archivo .nvmrc)
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+
+      - name: Instalar librerías
+        run: |
+          npm ci
+          npm ci --prefix backend
+
+      - name: Revisar vulnerabilidades conocidas en las librerías
+        run: |
+          npm audit --audit-level=high
+          npm audit --audit-level=high --prefix backend
+
+      - name: Instalar el navegador de pruebas
+        run: npx playwright install --with-deps chromium
+
+      - name: Correr las pruebas
+        run: npx playwright test
+
+      - name: Guardar el reporte y las capturas
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: reporte-playwright
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
