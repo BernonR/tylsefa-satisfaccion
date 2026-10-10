@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inicio | Tylsefa</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="ty-pendiente" data-pagina="inicio">
+  <div class="ty-app">
+    <!-- Barra superior en tabletas y teléfonos -->
+    <header class="ty-barra-movil">
+      <img class="logo" src="img/logo-tylsefa.png" alt="Tylsefa" width="698" height="283">
+      <button class="btn btn-ty-secundario btn-ty-icono" type="button" data-bs-toggle="offcanvas" data-bs-target="#lateral" aria-controls="lateral" aria-label="Abrir menú">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <!-- Menú lateral: fijo en computadora, deslizable en pantallas pequeñas -->
+    <aside class="ty-lateral offcanvas-lg offcanvas-start" tabindex="-1" id="lateral" aria-label="Menú principal">
+      <div class="offcanvas-body">
+        <div class="d-flex align-items-center justify-content-between">
+          <img class="logo" src="img/logo-tylsefa.png" alt="Tylsefa" width="698" height="283">
+          <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#lateral" aria-label="Cerrar menú"></button>
+        </div>
+        <nav aria-label="Módulos">
+          <ul class="ty-menu" id="menu"></ul>
+        </nav>
+        <div class="ty-usuario">
+          <span class="ty-avatar" data-usuario="iniciales" aria-hidden="true"></span>
+          <div class="datos flex-grow-1">
+            <div class="nombre" data-usuario="nombre"></div>
+            <div class="ty-leyenda" data-usuario="perfil" id="perfil-usuario"></div>
+          </div>
+          <button type="button" class="btn btn-ty-texto btn-ty-icono" data-accion="salir" id="salir" aria-label="Cerrar sesión" title="Cerrar sesión">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="ty-principal">
+      <header class="ty-encabezado">
+        <div>
+          <p class="ty-leyenda mb-1" id="fecha"></p>
+          <h1 class="ty-titulo-grande mb-0" id="saludo">Bienvenido</h1>
+        </div>
+        <span class="ty-estado ty-estado-neutro"><i class="bi bi-shop" aria-hidden="true"></i>Sucursal Tulam Tzu</span>
+      </header>
+
+      <section aria-labelledby="titulo-modulos">
+        <h2 class="ty-subtitulo mb-3" id="titulo-modulos">Sus módulos</h2>
+        <div class="row g-3" id="modulos"></div>
+        <p class="ty-leyenda mt-4 mb-0"><i class="bi bi-shield-check" aria-hidden="true"></i> Por seguridad, la sesión se cierra sola después de 15 minutos sin actividad.</p>
+      </section>
+    </main>
+  </div>
+
+  <div class="ty-avisos" aria-live="polite"></div>
+
+  <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sistema.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/inicio.js"></script>
+</body>
+</html>

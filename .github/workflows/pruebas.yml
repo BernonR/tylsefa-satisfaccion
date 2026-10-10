@@ -53,7 +53,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Correr las pruebas
-        run: npx playwright test
+        run: npm run pruebas
 
       - name: Guardar el reporte y las capturas
         if: ${{ !cancelled() }}

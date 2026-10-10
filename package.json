@@ -6,8 +6,9 @@
   "scripts": {
     "preparar": "npm install && npm install --prefix backend && npx playwright install chromium",
     "servidor": "npm start --prefix backend",
-    "pruebas": "playwright test",
-    "reporte": "playwright show-report"
+    "pruebas": "npm run prueba:unidad --prefix backend && playwright test",
+    "reporte": "playwright show-report",
+    "pruebas:interfaz": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0"

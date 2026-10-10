@@ -1,0 +1,23 @@
+{
+  "_nota": "Cuentas que se crean solo en la base de desarrollo para las pruebas. La contraseña se genera al azar en cada ejecución.",
+  "vendedor": {
+    "correo": "vendedor@pruebas.tylsefa.com", "nombres": "Valeria", "apellidos": "Prueba", "perfil": "vendedor", "activo": true,
+    "menu": ["inicio", "cotizaciones", "retroalimentacion", "indicadores"]
+  },
+  "supervisor": {
+    "correo": "supervisor@pruebas.tylsefa.com", "nombres": "Sergio", "apellidos": "Prueba", "perfil": "supervisor", "activo": true,
+    "menu": ["inicio", "cotizaciones", "casos", "indicadores", "catalogos"]
+  },
+  "gerente": {
+    "correo": "gerente@pruebas.tylsefa.com", "nombres": "Gabriela", "apellidos": "Prueba", "perfil": "gerente", "activo": true,
+    "menu": ["inicio", "cotizaciones", "casos", "indicadores", "catalogos"]
+  },
+  "administrador": {
+    "correo": "administrador@pruebas.tylsefa.com", "nombres": "Andrés", "apellidos": "Prueba", "perfil": "administrador", "activo": true,
+    "menu": ["inicio", "catalogos", "usuarios"]
+  },
+  "inactivo": {
+    "correo": "inactivo@pruebas.tylsefa.com", "nombres": "Iván", "apellidos": "Prueba", "perfil": "vendedor", "activo": false,
+    "menu": []
+  }
+}

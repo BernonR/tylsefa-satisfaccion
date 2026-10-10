@@ -1,17 +1,19 @@
-# Copie este archivo con el nombre .env y complete los valores.
+# Copie este archivo con el nombre .env (dentro de la carpeta backend) y complete los valores.
 # El archivo .env nunca se sube al repositorio ni se pega en la tesis.
 
-# Cadena de conexión de Neon (Dashboard del proyecto, botón Connect)
+# Cadena de conexión de la rama development de Neon (botón Connect del proyecto)
 DATABASE_URL=
 
-# Texto largo y aleatorio para firmar las sesiones
+# Texto largo y aleatorio para firmar las sesiones. Se genera con: npm run generar-secreto --prefix backend
 SESION_SECRETO=
 
-# Cuenta de correo del proyecto
-CORREO_SERVIDOR=
-CORREO_PUERTO=587
-CORREO_USUARIO=
-CORREO_CLAVE=
+# Minutos sin actividad antes de cerrar la sesión del personal (RS11). Si se deja vacío son 15.
+SESION_MINUTOS=
 
-# Dirección de la interfaz publicada, para permitir sus peticiones
-ORIGEN_PERMITIDO=http://localhost:3000
+# Solo para crear la cuenta del administrador en producción (npm run crear-admin:produccion).
+# Cadena de la rama production de Neon. Puede borrarla del archivo después de usarla.
+DATABASE_URL_PRODUCCION=
+
+# Dirección de la interfaz cuando está en otro dominio (en Render: https://app.tylsefa.com).
+# En la computadora de desarrollo se deja vacío: la interfaz y el servidor comparten dirección.
+ORIGEN_PERMITIDO=

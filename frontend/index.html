@@ -4,13 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Inicio de sesión | Tylsefa</title>
-  <link href="vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
-  <link href="vendor/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="css/tylsefa.css" rel="stylesheet">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
 </head>
 <body>
-  <div class="escena">
-    <span class="luz luz-1"></span><span class="luz luz-2"></span><span class="luz luz-3"></span>
+  <div class="ty-escena">
+    <span class="luz luz-1" aria-hidden="true"></span><span class="luz luz-2" aria-hidden="true"></span>
     <!-- Cruz ansada del logo de Tylsefa -->
     <svg class="ansada" viewBox="0 0 240 380" fill="none" aria-hidden="true">
       <defs>
@@ -28,84 +30,45 @@
       </g>
     </svg>
 
-    <main class="acceso">
-      <section class="acceso-marca">
+    <main class="ty-acceso">
+      <section class="marca">
         <img class="logo" src="img/logo-tylsefa.png" alt="Tylsefa" width="698" height="283">
         <h1>Satisfacción en tiempo real</h1>
         <p>Cotizaciones, encuesta en terminal, casos de servicio e indicadores de la sucursal en un solo lugar.</p>
       </section>
 
-      <section class="tarjeta-vidrio" aria-labelledby="titulo-acceso">
-        <h2 id="titulo-acceso">Iniciar sesión</h2>
-        <p class="text-body-secondary mb-4">Ingrese con el correo y la contraseña que le asignó el administrador.</p>
+      <section class="ty-vidrio" aria-labelledby="titulo-acceso">
+        <h2 id="titulo-acceso" class="ty-titulo mb-1">Iniciar sesión</h2>
+        <p class="ty-secundario mb-4">Ingrese con el correo y la contraseña que le asignó el administrador.</p>
 
-        <div id="aviso" class="aviso-error mb-3 d-none" role="alert">
-          <i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>
-          El correo o la contraseña no son correctos. Verifique los datos e intente de nuevo.
-        </div>
+        <div id="aviso" class="d-none"></div>
 
         <form id="formulario" novalidate>
           <div class="mb-3">
             <label for="correo" class="form-label">Correo electrónico</label>
-            <input type="email" class="form-control" id="correo" autocomplete="username" required aria-describedby="correo-error">
+            <input type="email" class="form-control" id="correo" name="correo" autocomplete="username" inputmode="email" maxlength="120" required aria-describedby="correo-error">
             <div id="correo-error" class="invalid-feedback">Escriba un correo válido, por ejemplo nombre@empresa.com.</div>
           </div>
           <div class="mb-4">
             <label for="clave" class="form-label">Contraseña</label>
-            <div class="input-group has-validation">
-              <input type="password" class="form-control" id="clave" autocomplete="current-password" required aria-describedby="clave-error">
-              <button class="btn btn-vidrio" type="button" id="ver-clave" aria-label="Mostrar contraseña" aria-pressed="false">
+            <div class="ty-campo-clave">
+              <input type="password" class="form-control" id="clave" name="clave" autocomplete="current-password" maxlength="200" required aria-describedby="clave-error">
+              <button class="btn btn-ty-texto ver" type="button" id="ver-clave" aria-label="Mostrar contraseña" aria-pressed="false">
                 <i class="bi bi-eye" aria-hidden="true"></i>
               </button>
               <div id="clave-error" class="invalid-feedback">Escriba su contraseña.</div>
             </div>
           </div>
-          <button type="submit" class="btn btn-claro w-100" id="entrar">
-            <span class="spinner-border spinner-border-sm me-2 d-none" id="cargando" aria-hidden="true"></span>
-            <span id="entrar-texto">Iniciar sesión</span>
-            <i class="bi bi-arrow-right ms-1" id="flecha" aria-hidden="true"></i>
-          </button>
+          <button type="submit" class="btn btn-ty-primario btn-ty-grande w-100" id="entrar">Iniciar sesión<i class="bi bi-arrow-right" aria-hidden="true"></i></button>
         </form>
 
-        <p class="pie mb-0">¿Olvidó su contraseña? Solicite el restablecimiento al administrador del sistema.</p>
+        <p class="pie ty-leyenda mb-0">¿Olvidó su contraseña? Solicite el restablecimiento al administrador del sistema.</p>
       </section>
     </main>
   </div>
 
-  <script>
-    // Comportamiento del prototipo. La validación real la hace el servidor.
-    const formulario = document.getElementById('formulario');
-    const correo = document.getElementById('correo');
-    const clave = document.getElementById('clave');
-    const verClave = document.getElementById('ver-clave');
-
-    function validar(campo) {
-      const valido = campo.checkValidity();
-      campo.classList.toggle('is-invalid', !valido);
-      return valido;
-    }
-    correo.addEventListener('blur', () => validar(correo));
-    clave.addEventListener('blur', () => validar(clave));
-
-    verClave.addEventListener('click', () => {
-      const visible = clave.type === 'text';
-      clave.type = visible ? 'password' : 'text';
-      verClave.setAttribute('aria-pressed', String(!visible));
-      verClave.setAttribute('aria-label', visible ? 'Mostrar contraseña' : 'Ocultar contraseña');
-      verClave.firstElementChild.className = visible ? 'bi bi-eye' : 'bi bi-eye-slash';
-    });
-
-    formulario.addEventListener('submit', (evento) => {
-      evento.preventDefault();
-      const correcto = [validar(correo), validar(clave)].every(Boolean);
-      if (!correcto) return;
-      document.getElementById('aviso').classList.add('d-none');
-      document.getElementById('cargando').classList.remove('d-none');
-      document.getElementById('flecha').classList.add('d-none');
-      document.getElementById('entrar-texto').textContent = 'Verificando';
-      document.getElementById('entrar').disabled = true;
-      // Aquí irá la llamada al servicio de autenticación.
-    });
-  </script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/acceso.js"></script>
 </body>
 </html>

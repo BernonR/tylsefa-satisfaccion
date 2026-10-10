@@ -6,7 +6,11 @@
   "main": "src/servidor.js",
   "scripts": {
     "start": "node src/servidor.js",
-    "desarrollo": "node --watch src/servidor.js"
+    "desarrollo": "node --watch src/servidor.js",
+    "crear-admin": "node scripts/crear-administrador.js",
+    "crear-admin:produccion": "node scripts/crear-administrador.js --produccion",
+    "generar-secreto": "node scripts/generar-secreto.js",
+    "prueba:unidad": "node --test \"src/**/*.test.js\""
   },
   "dependencies": {
     "express": "^5.1.0",
