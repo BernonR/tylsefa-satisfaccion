@@ -13,6 +13,11 @@ const MENSAJE_GENERICO = 'El correo o la contraseña no son correctos';
 
 test.afterAll(() => bd.cerrar());
 
+// En modo presentación se deja ver el resultado de cada prueba antes de pasar a la siguiente.
+test.afterEach(async ({ page }) => {
+  if (process.env.PRESENTACION) await page.waitForTimeout(2000);
+});
+
 test.describe('Inicio de sesión', () => {
   test('CP-M01-01 con campos vacíos se indican los errores y no se envía nada', async ({ page }) => {
     const acceso = new PaginaAcceso(page);
