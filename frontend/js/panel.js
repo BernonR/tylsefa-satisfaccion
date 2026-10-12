@@ -9,10 +9,10 @@
     { id: 'cotizaciones', texto: 'Cotizaciones', icono: 'bi-receipt', href: 'cotizaciones.html', listo: true,
       permisos: ['cotizacion.registrar', 'cotizacion.consultar'],
       descripcion: 'Registrar las cotizaciones que el cliente califica en la terminal.' },
-    { id: 'casos', texto: 'Casos de servicio', menu: 'Casos', icono: 'bi-life-preserver', href: 'casos.html', listo: false,
+    { id: 'casos', texto: 'Casos de servicio', menu: 'Casos', icono: 'bi-life-preserver', href: 'casos.html', listo: true,
       permisos: ['caso.atender'],
       descripcion: 'Dar seguimiento a los clientes insatisfechos dentro del plazo.' },
-    { id: 'retroalimentacion', texto: 'Retroalimentación', icono: 'bi-chat-square-text', href: 'retroalimentacion.html', listo: false,
+    { id: 'retroalimentacion', texto: 'Retroalimentación', icono: 'bi-chat-square-text', href: 'retroalimentacion.html', listo: true,
       permisos: ['acuse.registrar'],
       descripcion: 'Leer y confirmar los comentarios de sus clientes.' },
     { id: 'indicadores', texto: 'Indicadores', icono: 'bi-graph-up', href: 'indicadores.html', listo: false,
@@ -264,6 +264,36 @@
     clearTimeout(renovacionPendiente);
   }
 
+  // ---------- Avisos (RF11): contador en el menú y aviso al iniciar sesión ----------
+  function cuentaMenu(modulo, n) {
+    const enlace = document.querySelector(`#menu li[data-modulo="${modulo}"] a`);
+    if (!enlace) return;
+    enlace.querySelector('.cuenta')?.remove();
+    if (n > 0) enlace.insertAdjacentHTML('beforeend', `<span class="cuenta" aria-label="${n} pendientes">${n}</span>`);
+  }
+
+  async function mostrarAvisos(usuario) {
+    if (!permitido({ permisos: ['caso.atender', 'acuse.registrar'] }, usuario)) return;
+    let datos;
+    try { datos = await Api.pedir('/api/avisos', { redirigir: false }); } catch { return; }
+    cuentaMenu('casos', datos.casosPendientes);
+    cuentaMenu('retroalimentacion', datos.retroalimentacionPendiente);
+    // Una sola vez por sesión del navegador.
+    const clave = `tylsefa_avisos_${usuario.id}`;
+    let visto = false;
+    try { visto = sessionStorage.getItem(clave) === '1'; sessionStorage.setItem(clave, '1'); } catch { /* sin almacenamiento */ }
+    if (visto) return;
+    if (datos.avisos.length) {
+      const nuevos = datos.avisos.filter((a) => a.tipo !== 'copia_vendedor');
+      const texto = nuevos.length
+        ? `Tiene ${nuevos.length} aviso${nuevos.length > 1 ? 's' : ''} de casos: ${nuevos.slice(0, 3).map((a) => a.numeroCaso).join(', ')}${nuevos.length > 3 ? '…' : ''}`
+        : `Tiene ${datos.avisos.length} retroalimentación nueva de sus clientes.`;
+      Tylsefa.aviso(texto, 'bi-bell-fill', 'var(--ty-aviso)');
+    } else if (datos.retroalimentacionPendiente) {
+      Tylsefa.aviso(`Tiene ${datos.retroalimentacionPendiente} retroalimentación por leer.`, 'bi-bell-fill', 'var(--ty-aviso)');
+    }
+  }
+
   // ---------- Arranque ----------
   const listo = Api.pedir('/api/sesion').then(({ usuario, minutos: m }) => {
     minutos = m;
@@ -273,6 +303,7 @@
     prepararCambioDeClave();
     document.body.classList.remove('ty-pendiente');
     iniciarVigilancia();
+    mostrarAvisos(usuario);
     return usuario;
   });
 
@@ -284,5 +315,5 @@
   });
 
   const tiene = (usuario, ...permisos) => permisos.some((p) => usuario.permisos.includes(p));
-  window.Panel = { listo, MODULOS, PERFILES, permitido, tiene };
+  window.Panel = { listo, MODULOS, PERFILES, permitido, tiene, cuentaMenu };
 })();

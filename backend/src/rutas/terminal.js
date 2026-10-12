@@ -13,6 +13,7 @@ const { crearFreno } = require('../seguridad/intentos');
 const { validarRespuesta, numeroCotizacion } = require('../servicios/validacion');
 const encuestas = require('../servicios/encuestas');
 const bitacora = require('../servicios/bitacora');
+const avisos = require('../servicios/avisos');
 
 const rutas = express.Router();
 const activar = exigirPermiso('cotizacion.registrar', 'usuarios.administrar');
@@ -95,6 +96,9 @@ rutas.post('/respuestas', exigirTerminal, async (req, res) => {
       detalle: `${r.numeroCaso} por ${r.numero} (${r.segmento})`,
     });
   }
+  // Correos y avisos sin hacer esperar al cliente.
+  if (r.idCaso) avisos.enSegundoPlano(avisos.casoNuevo(r.idCaso));
+  avisos.enSegundoPlano(avisos.respuestaAlVendedor(r.idRespuesta, r.idCaso));
   res.status(201).json({
     mensaje: 'Gracias por su respuesta.',
     caso: r.idCaso ? { numero: r.numeroCaso, plazo: plazoTexto(r.minutosPrimerContacto) } : null,

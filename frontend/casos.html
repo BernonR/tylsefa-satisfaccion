@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Casos de servicio | Tylsefa</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="ty-pendiente" data-pagina="casos">
+  <main class="ty-principal">
+    <header class="ty-encabezado">
+      <div>
+        <h1 class="ty-titulo-grande mb-1">Casos de servicio</h1>
+        <p class="ty-secundario mb-0" id="subtitulo">Clientes insatisfechos que esperan un contacto. Los plazos corren en horas hábiles, de lunes a viernes de 8:00 a 17:00.</p>
+      </div>
+    </header>
+
+    <div class="ty-contadores" aria-live="polite">
+      <div class="ty-contador"><div class="etiqueta">Sin primer contacto</div><div class="valor" id="k-abiertos">—</div></div>
+      <div class="ty-contador"><div class="etiqueta">En seguimiento</div><div class="valor" id="k-seguimiento">—</div></div>
+      <div class="ty-contador alerta"><div class="etiqueta">Escalados</div><div class="valor" id="k-escalados">—</div></div>
+      <div class="ty-contador"><div class="etiqueta">Ingreso expuesto</div><div class="valor ty-cifra" id="k-expuesto">—</div></div>
+    </div>
+
+    <div class="ty-filtros" role="search">
+      <div class="buscar">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="visually-hidden" for="buscar">Buscar caso</label>
+        <input type="search" class="form-control" id="buscar" placeholder="Buscar por caso, cotización, cliente o vendedor" autocomplete="off">
+      </div>
+      <label class="visually-hidden" for="filtro-estado">Estado</label>
+      <select class="form-select" id="filtro-estado">
+        <option value="pendientes" selected>Pendientes</option>
+        <option value="abierto">Sin primer contacto</option>
+        <option value="en_seguimiento">En seguimiento</option>
+        <option value="escalado">Escalados</option>
+        <option value="cerrado">Cerrados</option>
+        <option value="">Todos</option>
+      </select>
+    </div>
+
+    <p class="ty-resumen" id="resumen" aria-live="polite"></p>
+    <div class="ty-tabla-envoltura">
+      <table class="ty-tabla" id="tabla-casos">
+        <thead><tr><th scope="col">Caso y estado</th><th scope="col">Empresa cliente</th><th scope="col">Calificación</th><th scope="col" class="num">Monto</th><th scope="col">Responsable</th><th scope="col">Plazo</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Detalle del caso -->
+  <div class="modal fade ty-dialogo" id="dialogo-caso" tabindex="-1" aria-labelledby="dialogo-caso-titulo" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h2 class="modal-title" id="dialogo-caso-titulo">Caso</h2>
+            <span id="caso-estado"></span>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" id="caso-cuerpo"></div>
+      </div>
+    </div>
+  </div>
+  <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sistema.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/casos.js"></script>
+</body>
+</html>

@@ -28,9 +28,11 @@ class PaginaCotizaciones {
     await this.dialogo.getByLabel('Monto cotizado').fill(monto);
     if (vendedor) await this.dialogo.getByLabel('Vendedor que atendió').selectOption({ label: vendedor });
     if (cliente) {
+      // Se busca por nombre y se toca la fila de la empresa, como lo hace el supervisor.
       await this.page.locator('#c-filtro-cliente').fill(cliente);
-      const opcion = this.page.locator('#c-cliente option').filter({ hasText: cliente }).first();
-      await this.page.locator('#c-cliente').selectOption({ value: await opcion.getAttribute('value') });
+      const fila = this.page.locator('#c-clientes .ty-selector-fila').filter({ hasText: cliente }).first();
+      await fila.click();
+      await expect(fila).toHaveAttribute('aria-selected', 'true');
     }
     if (prueba) await this.page.locator('#c-prueba').check();
     await this.page.locator('#guardar-cotizacion').click();

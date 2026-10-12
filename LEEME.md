@@ -32,7 +32,7 @@ Sistema web para la medición de la satisfacción del cliente y la gestión de c
 | M02 Catálogos | Usuarios (alta, edición, contraseña, desactivación), empresas cliente con código automático, personal en consulta, cambio de contraseña propio |
 | M03 Cotizaciones | Registro por el supervisor (COT- y 6 dígitos, vigencia de 7 días), corrección mientras está pendiente, anulación con motivo, marca de prueba; el vendedor consulta solo las suyas |
 | M04 Terminal de autoservicio | Activación de la tableta por un supervisor o el administrador (90 días), número de cotización de un solo uso, calificación de 1 a 5, compra y motivo de no compra, comentario opcional, caso automático con calificación 1 o 2 según el segmento, regreso al inicio a los 60 segundos y envío diferido sin internet |
-| M05 Casos y notificaciones | Pendiente |
+| M05 Casos y notificaciones | Bandeja de casos con plazos en horas hábiles, primer contacto, actuaciones, cierre por la gerencia en mayoristas, escalamiento automático al vencer el primer contacto, correos por Resend y avisos en la aplicación; retroalimentación del vendedor con Enterado y confirmación del coaching |
 | M06 Indicadores y reportes | Pendiente |
 
 ## Importante

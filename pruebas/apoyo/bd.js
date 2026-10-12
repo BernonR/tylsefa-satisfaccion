@@ -21,7 +21,7 @@ async function ultimaAccion(correo, accion, desde) {
   return rows[0] || null;
 }
 
-// Borra lo que crean las pruebas (M02 a M04) para que no se acumule en la base de desarrollo.
+// Borra lo que crean las pruebas (M02 a M05) para que no se acumule en la base de desarrollo.
 // Primero lo que depende de las cotizaciones, porque estas apuntan a usuarios y empresas de prueba.
 const USUARIOS_TEMPORALES = "(SELECT id_usuario FROM usuario WHERE correo ~ '^m0[0-9]-.*@pruebas[.]tylsefa[.]com$')";
 const DE_PRUEBA = "(SELECT id_usuario FROM usuario WHERE correo LIKE '%@pruebas.tylsefa.com')";

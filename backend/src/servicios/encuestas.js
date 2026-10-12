@@ -67,7 +67,9 @@ async function insertar(r) {
         FROM cot
     ), gerente AS (
       SELECT u.id_usuario AS id FROM usuario u JOIN perfil p ON p.id_perfil = u.id_perfil
-       WHERE p.nombre = 'gerente' AND u.activo ORDER BY u.id_usuario LIMIT 1
+       WHERE p.nombre = 'gerente' AND u.activo
+       -- Las cuentas de las pruebas automáticas van al final: el caso real llega a la gerente real.
+       ORDER BY (u.correo LIKE '%@pruebas.tylsefa.com'), u.id_usuario LIMIT 1
     ), caso AS (
       INSERT INTO caso_servicio (numero_caso, id_respuesta, id_responsable, id_usuario_copia, id_plazo, es_prueba)
       SELECT 'CASO-' || lpad((coalesce((SELECT max(substring(numero_caso FROM 6)::int) FROM caso_servicio

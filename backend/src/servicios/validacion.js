@@ -120,10 +120,18 @@ function validarRespuesta(datos = {}, ahora = Date.now()) {
   return { errores, limpio, valido: Object.keys(errores).length === 0 };
 }
 
+// Textos de los casos (M05): nota de contacto, actuación y resolución.
+function validarTextoCaso(valor, minimo, maximo, que) {
+  const t = typeof valor === 'string' ? valor.trim().replace(/[ \t]+/g, ' ') : '';
+  if (t.length < minimo) return { error: `Describa ${que} (al menos ${minimo} caracteres).` };
+  if (t.length > maximo) return { error: `Use como máximo ${maximo} caracteres.` };
+  return { texto: t };
+}
+
 // Identificador numérico de la dirección (/api/usuarios/7).
 function identificador(valor) {
   const n = Number(valor);
   return Number.isInteger(n) && n > 0 && n < 2 ** 31 ? n : null;
 }
 
-module.exports = { validarUsuario, validarCliente, validarCotizacion, validarMotivo, validarRespuesta, numeroCotizacion, identificador, PERFILES, SEGMENTOS };
+module.exports = { validarUsuario, validarCliente, validarCotizacion, validarMotivo, validarRespuesta, validarTextoCaso, numeroCotizacion, identificador, PERFILES, SEGMENTOS };
