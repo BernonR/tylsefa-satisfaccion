@@ -6,7 +6,7 @@
   },
   "supervisor": {
     "correo": "supervisor@pruebas.tylsefa.com", "nombres": "Sergio", "apellidos": "Prueba", "perfil": "supervisor", "activo": true,
-    "menu": ["inicio", "cotizaciones", "casos", "indicadores", "catalogos"]
+    "menu": ["inicio", "cotizaciones", "casos", "indicadores", "catalogos", "terminal"]
   },
   "gerente": {
     "correo": "gerente@pruebas.tylsefa.com", "nombres": "Gabriela", "apellidos": "Prueba", "perfil": "gerente", "activo": true,
@@ -14,7 +14,7 @@
   },
   "administrador": {
     "correo": "administrador@pruebas.tylsefa.com", "nombres": "Andrés", "apellidos": "Prueba", "perfil": "administrador", "activo": true,
-    "menu": ["inicio", "catalogos", "usuarios"]
+    "menu": ["inicio", "catalogos", "usuarios", "terminal"]
   },
   "inactivo": {
     "correo": "inactivo@pruebas.tylsefa.com", "nombres": "Iván", "apellidos": "Prueba", "perfil": "vendedor", "activo": false,

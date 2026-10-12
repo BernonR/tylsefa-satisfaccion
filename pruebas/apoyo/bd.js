@@ -21,14 +21,23 @@ async function ultimaAccion(correo, accion, desde) {
   return rows[0] || null;
 }
 
-// Borra lo que crean las pruebas (M02, M03…) para que no se acumule en la base de desarrollo.
-// Primero las cotizaciones, porque apuntan a usuarios y empresas de prueba.
+// Borra lo que crean las pruebas (M02 a M04) para que no se acumule en la base de desarrollo.
+// Primero lo que depende de las cotizaciones, porque estas apuntan a usuarios y empresas de prueba.
 const USUARIOS_TEMPORALES = "(SELECT id_usuario FROM usuario WHERE correo ~ '^m0[0-9]-.*@pruebas[.]tylsefa[.]com$')";
 const DE_PRUEBA = "(SELECT id_usuario FROM usuario WHERE correo LIKE '%@pruebas.tylsefa.com')";
+const COTIZACIONES_DE_PRUEBA = `(SELECT id_cotizacion FROM cotizacion
+   WHERE id_vendedor IN ${DE_PRUEBA} OR id_supervisor_registro IN ${DE_PRUEBA}
+      OR id_cliente IN (SELECT id_cliente FROM empresa_cliente WHERE nombre LIKE 'Prueba automática %'))`;
+const RESPUESTAS_DE_PRUEBA = `(SELECT id_respuesta FROM encuesta_respuesta WHERE id_cotizacion IN ${COTIZACIONES_DE_PRUEBA})`;
+const CASOS_DE_PRUEBA = `(SELECT id_caso FROM caso_servicio WHERE id_respuesta IN ${RESPUESTAS_DE_PRUEBA})`;
 async function limpiarCatalogos() {
-  await consulta(`DELETE FROM cotizacion
-                   WHERE id_vendedor IN ${DE_PRUEBA} OR id_supervisor_registro IN ${DE_PRUEBA}
-                      OR id_cliente IN (SELECT id_cliente FROM empresa_cliente WHERE nombre LIKE 'Prueba automática %')`);
+  // Del final hacia el principio: avisos y actuaciones, casos, respuestas y cotizaciones.
+  await consulta(`DELETE FROM notificacion WHERE id_caso IN ${CASOS_DE_PRUEBA}`);
+  await consulta(`DELETE FROM actuacion_caso WHERE id_caso IN ${CASOS_DE_PRUEBA}`);
+  await consulta(`DELETE FROM caso_servicio WHERE id_caso IN ${CASOS_DE_PRUEBA}`);
+  await consulta(`DELETE FROM acuse_retroalimentacion WHERE id_respuesta IN ${RESPUESTAS_DE_PRUEBA}`);
+  await consulta(`DELETE FROM encuesta_respuesta WHERE id_respuesta IN ${RESPUESTAS_DE_PRUEBA}`);
+  await consulta(`DELETE FROM cotizacion WHERE id_cotizacion IN ${COTIZACIONES_DE_PRUEBA}`);
   await consulta(`UPDATE bitacora_auditoria SET id_usuario = NULL WHERE id_usuario IN ${USUARIOS_TEMPORALES}`);
   await consulta(`UPDATE usuario SET id_supervisor = NULL WHERE id_supervisor IN ${USUARIOS_TEMPORALES}`);
   await consulta(`DELETE FROM usuario WHERE id_usuario IN ${USUARIOS_TEMPORALES}`);
