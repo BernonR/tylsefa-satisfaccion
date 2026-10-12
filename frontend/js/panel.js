@@ -18,14 +18,118 @@
     { id: 'indicadores', texto: 'Indicadores', icono: 'bi-graph-up', href: 'indicadores.html', listo: false,
       permisos: ['tablero.propio', 'tablero.equipo', 'tablero.sucursal'],
       descripcion: 'Satisfacción, tendencias y reportes del periodo.' },
-    { id: 'catalogos', texto: 'Catálogos', icono: 'bi-journal-bookmark', href: 'catalogos.html', listo: false,
+    { id: 'catalogos', texto: 'Catálogos', icono: 'bi-journal-bookmark', href: 'catalogos.html', listo: true,
       permisos: ['catalogos.consultar', 'catalogos.gestionar'],
       descripcion: 'Personal y empresas cliente de la sucursal.' },
-    { id: 'usuarios', texto: 'Usuarios', icono: 'bi-people', href: 'usuarios.html', listo: false,
+    { id: 'usuarios', texto: 'Usuarios', icono: 'bi-people', href: 'usuarios.html', listo: true,
       permisos: ['usuarios.administrar'],
       descripcion: 'Cuentas de acceso y perfiles del personal.' },
   ];
   const PERFILES = { vendedor: 'Vendedor', supervisor: 'Supervisor', gerente: 'Gerente', administrador: 'Administrador' };
+
+  // ---------- Estructura común: barra móvil, menú lateral y avisos ----------
+  // Cada pantalla solo trae su <main class="ty-principal">; el resto se arma aquí.
+  function construirEstructura() {
+    const principal = document.querySelector('main.ty-principal');
+    if (!principal || document.querySelector('.ty-app')) return;
+    const app = document.createElement('div');
+    app.className = 'ty-app';
+    app.innerHTML = `
+      <header class="ty-barra-movil">
+        <img class="logo" src="img/logo-tylsefa.png" alt="Tylsefa" width="698" height="283">
+        <button class="btn btn-ty-secundario btn-ty-icono" type="button" data-bs-toggle="offcanvas" data-bs-target="#lateral" aria-controls="lateral" aria-label="Abrir menú">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+      </header>
+      <aside class="ty-lateral offcanvas-lg offcanvas-start" tabindex="-1" id="lateral" aria-label="Menú principal">
+        <div class="offcanvas-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <img class="logo" src="img/logo-tylsefa.png" alt="Tylsefa" width="698" height="283">
+            <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#lateral" aria-label="Cerrar menú"></button>
+          </div>
+          <nav aria-label="Módulos"><ul class="ty-menu" id="menu"></ul></nav>
+          <div class="ty-usuario">
+            <span class="ty-avatar" data-usuario="iniciales" aria-hidden="true"></span>
+            <div class="datos flex-grow-1">
+              <div class="nombre" data-usuario="nombre"></div>
+              <div class="ty-leyenda" data-usuario="perfil" id="perfil-usuario"></div>
+            </div>
+            <div class="acciones">
+              <button type="button" class="btn btn-ty-texto" id="cambiar-clave" aria-label="Cambiar mi contraseña" title="Cambiar mi contraseña">
+                <i class="bi bi-key" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn btn-ty-texto" data-accion="salir" id="salir" aria-label="Cerrar sesión" title="Cerrar sesión">
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>`;
+    principal.before(app);
+    app.appendChild(principal);
+    if (!document.querySelector('.ty-avisos')) {
+      const avisos = document.createElement('div');
+      avisos.className = 'ty-avisos';
+      avisos.setAttribute('aria-live', 'polite');
+      document.body.appendChild(avisos);
+    }
+  }
+  construirEstructura();
+
+  // ---------- Cambiar mi contraseña (todos los perfiles) ----------
+  function prepararCambioDeClave() {
+    const nodo = document.createElement('div');
+    nodo.className = 'modal fade ty-dialogo';
+    nodo.id = 'dialogo-clave';
+    nodo.tabIndex = -1;
+    nodo.setAttribute('aria-labelledby', 'dialogo-clave-titulo');
+    nodo.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered"><form class="modal-content" novalidate>
+        <div class="modal-header">
+          <h2 class="modal-title" id="dialogo-clave-titulo">Cambiar mi contraseña</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label" for="clave-actual">Contraseña actual</label>
+            <input class="form-control" type="password" id="clave-actual" name="actual" autocomplete="current-password" required></div>
+          <div class="mb-3"><label class="form-label" for="clave-nueva">Nueva contraseña</label>
+            <input class="form-control" type="password" id="clave-nueva" name="nueva" autocomplete="new-password" required aria-describedby="clave-nueva-ayuda">
+            <div class="form-text" id="clave-nueva-ayuda">Mínimo 8 caracteres, con mayúscula, minúscula y número.</div></div>
+          <div><label class="form-label" for="clave-repetir">Repita la nueva contraseña</label>
+            <input class="form-control" type="password" id="clave-repetir" name="repetir" autocomplete="new-password" required></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ty-secundario" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-ty-primario" id="guardar-clave">Cambiar contraseña</button>
+        </div>
+      </form></div>`;
+    document.body.appendChild(nodo);
+    const formulario = nodo.querySelector('form');
+    const modal = new bootstrap.Modal(nodo);
+    document.getElementById('cambiar-clave').addEventListener('click', () => {
+      formulario.reset();
+      UI.limpiarErrores(formulario);
+      modal.show();
+    });
+    nodo.addEventListener('shown.bs.modal', () => formulario.actual.focus());
+    formulario.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      const { actual, nueva, repetir } = UI.datos(formulario);
+      if (nueva !== repetir) { UI.mostrarErrores(formulario, { repetir: 'Las contraseñas no coinciden.' }); return; }
+      const boton = document.getElementById('guardar-clave');
+      UI.ocupado(boton, true);
+      try {
+        const r = await Api.pedir('/api/sesion/contrasena', { metodo: 'POST', datos: { actual, nueva } });
+        modal.hide();
+        Tylsefa.aviso(r.mensaje);
+      } catch (error) {
+        if (error.errores) UI.mostrarErrores(formulario, error.errores);
+        else Tylsefa.aviso(error.message, 'bi-exclamation-circle-fill', 'var(--ty-error)');
+      } finally {
+        UI.ocupado(boton, false);
+      }
+    });
+  }
 
   const permitido = (m, usuario) => !m.permisos || m.permisos.some((p) => usuario.permisos.includes(p));
   const pagina = document.body.dataset.pagina;
@@ -163,6 +267,7 @@
     armarMenu(usuario);
     mostrarUsuario(usuario);
     document.querySelectorAll('[data-accion="salir"]').forEach((b) => b.addEventListener('click', () => salir('salida')));
+    prepararCambioDeClave();
     document.body.classList.remove('ty-pendiente');
     iniciarVigilancia();
     return usuario;
@@ -175,5 +280,6 @@
     principal.querySelector('p').textContent = error.message;
   });
 
-  window.Panel = { listo, MODULOS, PERFILES, permitido };
+  const tiene = (usuario, ...permisos) => permisos.some((p) => usuario.permisos.includes(p));
+  window.Panel = { listo, MODULOS, PERFILES, permitido, tiene };
 })();

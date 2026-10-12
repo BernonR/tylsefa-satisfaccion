@@ -21,13 +21,15 @@ Sistema web para la medición de la satisfacción del cliente y la gestión de c
 | `npm run reporte` | Abre el reporte de la última corrida de pruebas. |
 | `npm run crear-admin --prefix backend` | Crea la cuenta del administrador en la base de desarrollo, o le cambia la contraseña. |
 | `npm run generar-secreto --prefix backend` | Genera un valor para `SESION_SECRETO`. |
+| `npm run cargar-datos-prueba --prefix backend` | Carga el personal y las empresas cliente de prueba (datos modificados de Tylsefa). |
+| `npm run presentacion` | Corre las pruebas despacio y con el navegador visible. |
 
 ## Módulos
 
 | Módulo | Estado |
 |---|---|
 | M01 Acceso y seguridad | Inicio y cierre de sesión, menú según el perfil, cierre por inactividad, bitácora |
-| M02 Catálogos | Pendiente |
+| M02 Catálogos | Usuarios (alta, edición, contraseña, desactivación), empresas cliente con código automático, personal en consulta, cambio de contraseña propio |
 | M03 Cotizaciones | Pendiente |
 | M04 Terminal de autoservicio | Pendiente |
 | M05 Casos y notificaciones | Pendiente |

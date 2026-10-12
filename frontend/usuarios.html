@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usuarios | Tylsefa</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="ty-pendiente" data-pagina="usuarios">
+  <main class="ty-principal">
+    <header class="ty-encabezado">
+      <div>
+        <h1 class="ty-titulo-grande mb-1">Usuarios</h1>
+        <p class="ty-secundario mb-0">Cuentas de acceso del personal de la sucursal.</p>
+      </div>
+      <button type="button" class="btn btn-ty-primario" id="nuevo-usuario"><i class="bi bi-person-plus" aria-hidden="true"></i>Nuevo usuario</button>
+    </header>
+
+    <div class="ty-filtros" role="search">
+      <div class="buscar">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="visually-hidden" for="buscar">Buscar usuario</label>
+        <input type="search" class="form-control" id="buscar" placeholder="Buscar por nombre o correo" autocomplete="off">
+      </div>
+      <label class="visually-hidden" for="filtro-perfil">Perfil</label>
+      <select class="form-select" id="filtro-perfil">
+        <option value="">Todos los perfiles</option>
+        <option value="gerente">Gerente</option>
+        <option value="supervisor">Supervisor</option>
+        <option value="vendedor">Vendedor</option>
+        <option value="administrador">Administrador</option>
+      </select>
+      <div class="ty-segmentos" role="group" aria-label="Estado">
+        <input type="radio" class="btn-check" name="estado" id="estado-activos" value="activos" checked><label class="btn" for="estado-activos">Activos</label>
+        <input type="radio" class="btn-check" name="estado" id="estado-inactivos" value="inactivos"><label class="btn" for="estado-inactivos">Inactivos</label>
+        <input type="radio" class="btn-check" name="estado" id="estado-todos" value="todos"><label class="btn" for="estado-todos">Todos</label>
+      </div>
+    </div>
+
+    <p class="ty-resumen" id="resumen" aria-live="polite"></p>
+    <div class="ty-tabla-envoltura">
+      <table class="ty-tabla" id="tabla-usuarios">
+        <thead><tr><th scope="col">Nombre</th><th scope="col">Perfil</th><th scope="col">Supervisor a cargo</th><th scope="col">Estado</th><th scope="col" class="acciones"><span class="visually-hidden">Acciones</span></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Alta y edición de usuario -->
+  <div class="modal fade ty-dialogo" id="dialogo-usuario" tabindex="-1" aria-labelledby="dialogo-usuario-titulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" novalidate>
+        <div class="modal-header">
+          <h2 class="modal-title" id="dialogo-usuario-titulo">Nuevo usuario</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-sm-6"><label class="form-label" for="u-nombres">Nombres</label><input class="form-control" id="u-nombres" name="nombres" maxlength="60" required autocomplete="off"></div>
+            <div class="col-sm-6"><label class="form-label" for="u-apellidos">Apellidos</label><input class="form-control" id="u-apellidos" name="apellidos" maxlength="60" required autocomplete="off"></div>
+            <div class="col-12"><label class="form-label" for="u-correo">Correo</label><input class="form-control" id="u-correo" name="correo" type="email" maxlength="120" required autocomplete="off" aria-describedby="u-correo-ayuda">
+              <div class="form-text" id="u-correo-ayuda">Con este correo inicia sesión y recibe los avisos del sistema.</div></div>
+            <div class="col-sm-6"><label class="form-label" for="u-perfil">Perfil</label>
+              <select class="form-select" id="u-perfil" name="perfil" required>
+                <option value="">Elija…</option><option value="gerente">Gerente</option><option value="supervisor">Supervisor</option><option value="vendedor">Vendedor</option><option value="administrador">Administrador</option>
+              </select></div>
+            <div class="col-sm-6" id="campo-supervisor" hidden><label class="form-label" for="u-supervisor">Supervisor a cargo</label>
+              <select class="form-select" id="u-supervisor" name="idSupervisor"><option value="">Elija…</option></select></div>
+            <div class="col-12" id="campo-clave"><label class="form-label" for="u-clave">Contraseña temporal</label>
+              <div class="ty-campo-clave">
+                <input class="form-control" id="u-clave" name="clave" type="password" autocomplete="new-password" aria-describedby="u-clave-ayuda">
+                <button class="btn btn-ty-texto ver" type="button" data-ver="u-clave" aria-label="Mostrar contraseña"><i class="bi bi-eye" aria-hidden="true"></i></button>
+              </div>
+              <div class="form-text" id="u-clave-ayuda">Mínimo 8 caracteres, con mayúscula, minúscula y número. Comuníquesela a la persona; podrá cambiarla desde su menú.</div></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ty-secundario" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-ty-primario" id="guardar-usuario">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Restablecer contraseña -->
+  <div class="modal fade ty-dialogo" id="dialogo-restablecer" tabindex="-1" aria-labelledby="dialogo-restablecer-titulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" novalidate>
+        <div class="modal-header">
+          <h2 class="modal-title" id="dialogo-restablecer-titulo">Restablecer contraseña</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p class="ty-secundario" id="restablecer-para"></p>
+          <label class="form-label" for="r-clave">Nueva contraseña temporal</label>
+          <div class="ty-campo-clave">
+            <input class="form-control" id="r-clave" name="clave" type="password" autocomplete="new-password">
+            <button class="btn btn-ty-texto ver" type="button" data-ver="r-clave" aria-label="Mostrar contraseña"><i class="bi bi-eye" aria-hidden="true"></i></button>
+          </div>
+          <div class="form-text">Mínimo 8 caracteres, con mayúscula, minúscula y número.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ty-secundario" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-ty-primario" id="guardar-restablecer">Restablecer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sistema.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/usuarios.js"></script>
+</body>
+</html>

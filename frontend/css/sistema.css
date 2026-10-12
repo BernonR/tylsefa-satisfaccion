@@ -488,7 +488,7 @@ body {
 .ty-usuario { margin-top: auto; display: flex; align-items: center; gap: 0.625rem; padding: 0.625rem 0.5rem 0.625rem 0.75rem; border-radius: var(--ty-radio-lg); background: var(--ty-superficie-2); }
 .ty-avatar { width: 36px; height: 36px; font-size: 0.875rem; border-radius: 50%; flex: none; display: grid; place-items: center; background: var(--ty-marca-suave); color: var(--ty-marca-clara); font-weight: 650; }
 .ty-usuario .datos { min-width: 0; }
-.ty-usuario .nombre { font-weight: 600; font-size: 0.9375rem; line-height: 1.25; overflow-wrap: break-word; }
+.ty-usuario .nombre { font-weight: 600; font-size: 0.875rem; line-height: 1.25; overflow-wrap: break-word; }
 
 .ty-principal { padding: 2rem clamp(1.25rem, 3vw, 2.5rem) 3rem; min-width: 0; }
 .ty-barra-movil { display: none; }
@@ -511,3 +511,31 @@ body {
 
 /* Mientras se comprueba la sesión no se muestra el contenido del panel. */
 body.ty-pendiente .ty-app { visibility: hidden; }
+
+/* ---------- Ventanas de formulario (alta y edición) ---------- */
+.ty-dialogo .modal-content {
+  background: var(--ty-superficie-1); color: var(--ty-texto); border: 1px solid var(--ty-linea);
+  border-radius: var(--ty-radio-lg); box-shadow: var(--ty-sombra-alta);
+}
+.ty-dialogo .modal-header, .ty-dialogo .modal-footer { border-color: var(--ty-linea); padding: 1.25rem 1.5rem; }
+.ty-dialogo .modal-body { padding: 1.5rem; }
+.ty-dialogo .modal-title { font-size: 1.125rem; font-weight: 650; }
+.ty-dialogo .modal-footer { gap: 0.5rem; }
+.ty-dialogo .btn-close { filter: invert(1) grayscale(1); opacity: 0.6; }
+.form-select option { background: var(--ty-superficie-2); color: var(--ty-texto); }
+
+/* ---------- Listados de los módulos ---------- */
+.ty-filtros { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
+.ty-filtros .buscar { position: relative; flex: 1 1 16rem; max-width: 26rem; }
+.ty-filtros .buscar .bi { position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); color: var(--ty-texto-3); pointer-events: none; }
+.ty-filtros .buscar .form-control { padding-left: 2.5rem; }
+.ty-filtros .form-select { width: auto; min-width: 10rem; }
+.ty-tabla .acciones { text-align: right; }
+.ty-tabla .acciones .btn { min-height: 36px; width: 36px; --bs-btn-padding-x: 0; --bs-btn-padding-y: 0; }
+.ty-tabla .principal { font-weight: 600; }
+.ty-tabla tr.inactivo td { color: var(--ty-texto-3); }
+.ty-resumen { color: var(--ty-texto-3); font-size: 0.875rem; margin: 0 0 0.75rem; }
+.ty-usuario .acciones { display: flex; gap: 0; margin-right: -0.25rem; }
+.ty-usuario .acciones .btn { width: 32px; min-height: 36px; --bs-btn-padding-x: 0; }
+.form-select { padding-right: 2.5rem; background-position: right 0.875rem center; }
+.ty-tabla td.correo { white-space: normal; overflow-wrap: anywhere; min-width: 14rem; }

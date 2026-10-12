@@ -4,9 +4,10 @@
 // la interfaz nunca la lee ni la guarda.
 (function () {
   class ErrorApi extends Error {
-    constructor(mensaje, estado) {
+    constructor(mensaje, estado, errores) {
       super(mensaje);
       this.estado = estado;
+      this.errores = errores;
     }
   }
 
@@ -31,7 +32,7 @@
 
     const cuerpo = await respuesta.json().catch(() => ({}));
     if (!respuesta.ok) {
-      throw new ErrorApi(cuerpo.mensaje || 'Ocurrió un error inesperado. Intente de nuevo.', respuesta.status);
+      throw new ErrorApi(cuerpo.mensaje || 'Ocurrió un error inesperado. Intente de nuevo.', respuesta.status, cuerpo.errores);
     }
     return cuerpo;
   }

@@ -15,15 +15,16 @@ Panel.listo.then((usuario) => {
     const col = document.createElement('div');
     col.className = 'col-12 col-md-6 col-xl-4 ty-revelar';
     col.dataset.modulo = m.id;
+    const etiqueta = m.listo ? 'a' : 'div';
     col.innerHTML = `
-      <div class="ty-tarjeta ty-modulo">
+      <${etiqueta} class="ty-tarjeta ty-modulo${m.listo ? ' ty-tarjeta-elevable' : ''}"${m.listo ? ` href="${m.href}"` : ''}>
         <span class="icono"><i class="bi ${m.icono}" aria-hidden="true"></i></span>
         <div>
           <h3 class="ty-subtitulo mb-1"></h3>
           <p class="ty-secundario mb-2"></p>
-          <span class="ty-estado ty-estado-neutro">Próximamente</span>
+          ${m.listo ? '<span class="ty-estado ty-estado-abierto"><i class="bi bi-arrow-right" aria-hidden="true"></i>Abrir</span>' : '<span class="ty-estado ty-estado-neutro">Próximamente</span>'}
         </div>
-      </div>`;
+      </${etiqueta}>`;
     col.querySelector('h3').textContent = m.texto;
     col.querySelector('p').textContent = m.descripcion;
     contenedor.appendChild(col);

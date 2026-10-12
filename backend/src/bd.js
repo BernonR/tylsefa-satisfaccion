@@ -21,6 +21,7 @@ function crearPool() {
     connectionString: local ? cadenaConexion : prepararCadena(cadenaConexion),
     ssl: local ? false : { rejectUnauthorized: true },
     max: 5,
+    allowExitOnIdle: true, // los scripts y las pruebas terminan solos al quedar sin consultas
   });
 }
 

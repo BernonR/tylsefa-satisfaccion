@@ -32,6 +32,8 @@ app.get('/salud', async (req, res) => {
 
 app.use('/api/sesion', require('./rutas/sesion'));
 app.use('/api/usuarios', require('./rutas/usuarios'));
+app.use('/api/clientes', require('./rutas/clientes'));
+app.use('/api/personal', require('./rutas/personal'));
 app.use('/api', (req, res) => res.status(404).json({ mensaje: 'Ruta no encontrada.' }));
 
 // En la computadora de desarrollo el mismo servidor entrega la interfaz.

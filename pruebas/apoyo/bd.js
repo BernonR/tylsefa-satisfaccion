@@ -21,4 +21,14 @@ async function ultimaAccion(correo, accion, desde) {
   return rows[0] || null;
 }
 
-module.exports = { pool, consulta, ultimaAccion, cerrar: () => pool.end() };
+// Borra lo que crean las pruebas de M02 para que no se acumule en la base de desarrollo.
+async function limpiarCatalogos() {
+  await consulta(`UPDATE bitacora_auditoria SET id_usuario = NULL
+                   WHERE id_usuario IN (SELECT id_usuario FROM usuario WHERE correo LIKE 'm02-%@pruebas.tylsefa.com')`);
+  await consulta(`UPDATE usuario SET id_supervisor = NULL
+                   WHERE id_supervisor IN (SELECT id_usuario FROM usuario WHERE correo LIKE 'm02-%@pruebas.tylsefa.com')`);
+  await consulta("DELETE FROM usuario WHERE correo LIKE 'm02-%@pruebas.tylsefa.com'");
+  await consulta("DELETE FROM empresa_cliente WHERE nombre LIKE 'Prueba automática %'");
+}
+
+module.exports = { pool, consulta, ultimaAccion, limpiarCatalogos, cerrar: () => pool.end() };

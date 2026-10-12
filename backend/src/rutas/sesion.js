@@ -5,7 +5,7 @@
 const express = require('express');
 const config = require('../config');
 const { crearComprobante, leerComprobante, leerCookies, cookieSesion, cookieBorrada } = require('../seguridad/sesion');
-const { verificar, generarResumen } = require('../seguridad/contrasenas');
+const { verificar, generarResumen, revisarPolitica } = require('../seguridad/contrasenas');
 const { crearFreno } = require('../seguridad/intentos');
 const { exigirSesion } = require('../middleware/autenticacion');
 const usuarios = require('../servicios/usuarios');
@@ -61,6 +61,21 @@ rutas.get('/', exigirSesion, (req, res) => {
 
 // Renueva la sesión cuando la persona sigue activa en la pantalla.
 rutas.post('/renovar', exigirSesion, (req, res) => res.status(204).end());
+
+// Cada persona puede cambiar su propia contraseña escribiendo la actual.
+rutas.post('/contrasena', exigirSesion, async (req, res) => {
+  const actual = typeof req.body?.actual === 'string' ? req.body.actual : '';
+  const nueva = typeof req.body?.nueva === 'string' ? req.body.nueva : '';
+  if (!(await verificar(actual, req.usuario.hash_contrasena))) {
+    return res.status(400).json({ mensaje: 'Revise los datos marcados.', errores: { actual: 'La contraseña actual no es correcta.' } });
+  }
+  const faltas = revisarPolitica(nueva);
+  if (faltas.length) return res.status(400).json({ mensaje: 'Revise los datos marcados.', errores: { nueva: `La contraseña necesita ${faltas.join(', ')}.` } });
+  if (nueva === actual) return res.status(400).json({ mensaje: 'Revise los datos marcados.', errores: { nueva: 'La nueva contraseña debe ser distinta de la actual.' } });
+  await usuarios.cambiarContrasena(req.usuario.id_usuario, await generarResumen(nueva));
+  await bitacora.registrar({ idUsuario: req.usuario.id_usuario, accion: 'cambio_contrasena', entidad: 'usuario', idRegistro: req.usuario.id_usuario });
+  res.json({ mensaje: 'Su contraseña se cambió correctamente.' });
+});
 
 rutas.delete('/', async (req, res) => {
   const datos = leerComprobante(leerCookies(req.headers.cookie)[config.sesion.nombreCookie], config.sesion, Date.now(), 120_000);
