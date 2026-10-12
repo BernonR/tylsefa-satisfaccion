@@ -10,6 +10,8 @@
     "crear-admin": "node scripts/crear-administrador.js",
     "crear-admin:produccion": "node scripts/crear-administrador.js --produccion",
     "generar-secreto": "node scripts/generar-secreto.js",
+    "cargar-datos-prueba": "node scripts/cargar-datos-prueba.js",
+    "cargar-datos-prueba:produccion": "node scripts/cargar-datos-prueba.js --produccion",
     "prueba:unidad": "node --test \"src/**/*.test.js\""
   },
   "dependencies": {

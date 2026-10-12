@@ -1,0 +1,445 @@
+{
+ "_nota": "Empresas cliente de prueba. Nombres tomados del listado de Tylsefa; código, NIT, correo y contacto inventados (regla de Tylsefa: no usar datos reales). Los correos @prueba.tylsefa.com no reciben mensajes; los clientes PRU- llevan correos de Bernon para comprobar los avisos.",
+ "clientes": [
+  {
+   "codigo": "CLI-0001",
+   "nombre": "Amplicolor 1 Hora",
+   "segmento": "mayorista",
+   "correo": "compras.amplicolor1hora@prueba.tylsefa.com",
+   "contacto": "Licda. Gabriela Monzón",
+   "nit": "9586960-3"
+  },
+  {
+   "codigo": "CLI-0002",
+   "nombre": "APROFAM",
+   "segmento": "mayorista",
+   "correo": "compras.aprofam@prueba.tylsefa.com",
+   "contacto": "Licda. Lesly Méndez",
+   "nit": "8056747-9"
+  },
+  {
+   "codigo": "CLI-0003",
+   "nombre": "Asfahino",
+   "segmento": "minorista",
+   "correo": "compras.asfahino@prueba.tylsefa.com",
+   "contacto": "Rosa Orellana",
+   "nit": "8400346-4"
+  },
+  {
+   "codigo": "CLI-0004",
+   "nombre": "Asociación Cultural Franciscano Capuchina",
+   "segmento": "mayorista",
+   "correo": "compras.asociacionculturalfranci@prueba.tylsefa.com",
+   "contacto": "Ana Soto",
+   "nit": "2354318-3"
+  },
+  {
+   "codigo": "CLI-0005",
+   "nombre": "Asociación Guatemalteca de Servicios Médicos",
+   "segmento": "mayorista",
+   "correo": "compras.asociacionguatemaltecase@prueba.tylsefa.com",
+   "contacto": "Licda. Mario Morales",
+   "nit": "8543956-8"
+  },
+  {
+   "codigo": "CLI-0006",
+   "nombre": "Asociación La Merced",
+   "segmento": "minorista",
+   "correo": "compras.asociacionmerced@prueba.tylsefa.com",
+   "contacto": "Lic. Alejandra Estrada",
+   "nit": "6271957-2"
+  },
+  {
+   "codigo": "CLI-0007",
+   "nombre": "Astro Market",
+   "segmento": "minorista",
+   "correo": "compras.astromarket@prueba.tylsefa.com",
+   "contacto": "Paola Ortiz",
+   "nit": "6832730-7"
+  },
+  {
+   "codigo": "CLI-0008",
+   "nombre": "Atlántida Casa Comercial",
+   "segmento": "minorista",
+   "correo": "compras.atlantidacomercial@prueba.tylsefa.com",
+   "contacto": "Sr. Marvin Aguilar",
+   "nit": "9616569-3"
+  },
+  {
+   "codigo": "CLI-0009",
+   "nombre": "Auto Market Puerta Parada",
+   "segmento": "minorista",
+   "correo": "compras.automarketpuertaparada@prueba.tylsefa.com",
+   "contacto": "Licda. Pablo Barrios",
+   "nit": "2504328-5"
+  },
+  {
+   "codigo": "CLI-0010",
+   "nombre": "Automarket Santa Rosita",
+   "segmento": "minorista",
+   "correo": "compras.automarketsantarosita@prueba.tylsefa.com",
+   "contacto": "Ing. Mario Recinos",
+   "nit": "3363714-8"
+  },
+  {
+   "codigo": "CLI-0011",
+   "nombre": "Avilfosa",
+   "segmento": "minorista",
+   "correo": "compras.avilfosa@prueba.tylsefa.com",
+   "contacto": "Ing. Ana Gómez",
+   "nit": "7099226-6"
+  },
+  {
+   "codigo": "CLI-0012",
+   "nombre": "Bayer de Guatemala, S.A.",
+   "segmento": "minorista",
+   "correo": "compras.bayerguatemala@prueba.tylsefa.com",
+   "contacto": "Héctor Pérez",
+   "nit": "7690306-0"
+  },
+  {
+   "codigo": "CLI-0013",
+   "nombre": "Begamed, S.A.",
+   "segmento": "mayorista",
+   "correo": "compras.begamedsa@prueba.tylsefa.com",
+   "contacto": "Byron Morales",
+   "nit": "8137754-1"
+  },
+  {
+   "codigo": "CLI-0014",
+   "nombre": "Bodega Farmacéutica",
+   "segmento": "mayorista",
+   "correo": "compras.bodegafarmaceutica@prueba.tylsefa.com",
+   "contacto": "Paola Monzón",
+   "nit": "5339316-3"
+  },
+  {
+   "codigo": "CLI-0015",
+   "nombre": "Bonanza, S.A.",
+   "segmento": "minorista",
+   "correo": "compras.bonanzasa@prueba.tylsefa.com",
+   "contacto": "Sra. Mónica Estrada",
+   "nit": "9605863-3"
+  },
+  {
+   "codigo": "CLI-0016",
+   "nombre": "Cemaco",
+   "segmento": "mayorista",
+   "correo": "compras.cemaco@prueba.tylsefa.com",
+   "contacto": "Lic. Mónica Méndez",
+   "nit": "3164241-1"
+  },
+  {
+   "codigo": "CLI-0017",
+   "nombre": "Codicasa",
+   "segmento": "mayorista",
+   "correo": "compras.codicasa@prueba.tylsefa.com",
+   "contacto": "Lic. Fernanda Monzón",
+   "nit": "2720946-6"
+  },
+  {
+   "codigo": "CLI-0018",
+   "nombre": "C.J.M. Corporación Médica, S.A.",
+   "segmento": "mayorista",
+   "correo": "compras.cjmcorporacionmedica@prueba.tylsefa.com",
+   "contacto": "Sra. Óscar Hernández",
+   "nit": "9088515-5"
+  },
+  {
+   "codigo": "CLI-0019",
+   "nombre": "Cadena de Tiendas Cony",
+   "segmento": "mayorista",
+   "correo": "compras.cadenatiendascony@prueba.tylsefa.com",
+   "contacto": "Byron Morales",
+   "nit": "8663770-3"
+  },
+  {
+   "codigo": "CLI-0020",
+   "nombre": "Cafetería El Aeropuerto",
+   "segmento": "minorista",
+   "correo": "compras.cafeteriaaeropuerto@prueba.tylsefa.com",
+   "contacto": "Fernanda Paz",
+   "nit": "5211189-K"
+  },
+  {
+   "codigo": "CLI-0021",
+   "nombre": "Comercial Tita",
+   "segmento": "minorista",
+   "correo": "compras.comercialtita@prueba.tylsefa.com",
+   "contacto": "Sra. Julio Cifuentes",
+   "nit": "9420478-0"
+  },
+  {
+   "codigo": "CLI-0022",
+   "nombre": "Casa Agrícola El Campesino",
+   "segmento": "mayorista",
+   "correo": "compras.agricolacampesino@prueba.tylsefa.com",
+   "contacto": "Marvin Aguilar",
+   "nit": "8265655-K"
+  },
+  {
+   "codigo": "CLI-0023",
+   "nombre": "Casa Barrios, S.A.",
+   "segmento": "mayorista",
+   "correo": "compras.barrios@prueba.tylsefa.com",
+   "contacto": "Mario Ortiz",
+   "nit": "1155640-4"
+  },
+  {
+   "codigo": "CLI-0024",
+   "nombre": "Casa Comercial Herrera",
+   "segmento": "minorista",
+   "correo": "compras.comercialherrera@prueba.tylsefa.com",
+   "contacto": "Lic. Sofía Soto",
+   "nit": "8687780-1"
+  },
+  {
+   "codigo": "CLI-0025",
+   "nombre": "Casa de Beneficencia Maryknoll",
+   "segmento": "minorista",
+   "correo": "compras.beneficenciamaryknoll@prueba.tylsefa.com",
+   "contacto": "José Ramírez",
+   "nit": "5363930-8"
+  },
+  {
+   "codigo": "CLI-0026",
+   "nombre": "Casa del Agricultor",
+   "segmento": "mayorista",
+   "correo": "compras.agricultor@prueba.tylsefa.com",
+   "contacto": "Claudia Monzón",
+   "nit": "9340912-5"
+  },
+  {
+   "codigo": "CLI-0027",
+   "nombre": "Casa Diocesana",
+   "segmento": "minorista",
+   "correo": "compras.casadiocesana@prueba.tylsefa.com",
+   "contacto": "Sra. Edgar García",
+   "nit": "5866552-8"
+  },
+  {
+   "codigo": "CLI-0028",
+   "nombre": "Casa Salud La Bendición",
+   "segmento": "minorista",
+   "correo": "compras.saludbendicion@prueba.tylsefa.com",
+   "contacto": "Sr. Claudia Morales",
+   "nit": "8355987-6"
+  },
+  {
+   "codigo": "CLI-0029",
+   "nombre": "Cooperativa Sitrabi, R.L.",
+   "segmento": "mayorista",
+   "correo": "compras.cooperativasitrabi@prueba.tylsefa.com",
+   "contacto": "Ing. Claudia Castillo",
+   "nit": "8143344-1"
+  },
+  {
+   "codigo": "CLI-0030",
+   "nombre": "Cooperativa Unión y Fuerza, R.L.",
+   "segmento": "minorista",
+   "correo": "compras.cooperativaunionfuerza@prueba.tylsefa.com",
+   "contacto": "María Ortiz",
+   "nit": "9362112-4"
+  },
+  {
+   "codigo": "CLI-0031",
+   "nombre": "Cooperativa UPA",
+   "segmento": "mayorista",
+   "correo": "compras.cooperativaupa@prueba.tylsefa.com",
+   "contacto": "Sr. Carlos Ramírez",
+   "nit": "7900650-7"
+  },
+  {
+   "codigo": "CLI-0032",
+   "nombre": "Corporación Hotelera",
+   "segmento": "mayorista",
+   "correo": "compras.corporacionhotelera@prueba.tylsefa.com",
+   "contacto": "Claudia López",
+   "nit": "2546333-0"
+  },
+  {
+   "codigo": "CLI-0033",
+   "nombre": "Corporación Maza Jop",
+   "segmento": "minorista",
+   "correo": "compras.corporacionmazajop@prueba.tylsefa.com",
+   "contacto": "Lic. Claudia Orellana",
+   "nit": "2393608-8"
+  },
+  {
+   "codigo": "CLI-0034",
+   "nombre": "Cruz Roja Guatemalteca",
+   "segmento": "mayorista",
+   "correo": "compras.cruzrojaguatemalteca@prueba.tylsefa.com",
+   "contacto": "Diego Morales",
+   "nit": "1749254-8"
+  },
+  {
+   "codigo": "CLI-0035",
+   "nombre": "Delica, S.A.",
+   "segmento": "minorista",
+   "correo": "compras.delicasa@prueba.tylsefa.com",
+   "contacto": "Ing. Julio Gómez",
+   "nit": "3596457-K"
+  },
+  {
+   "codigo": "CLI-0036",
+   "nombre": "Depósito América",
+   "segmento": "mayorista",
+   "correo": "compras.depositoamerica@prueba.tylsefa.com",
+   "contacto": "Lic. Gabriela Orellana",
+   "nit": "9254204-2"
+  },
+  {
+   "codigo": "CLI-0037",
+   "nombre": "Depósito Angelita",
+   "segmento": "minorista",
+   "correo": "compras.depositoangelita@prueba.tylsefa.com",
+   "contacto": "Edgar Méndez",
+   "nit": "8935346-3"
+  },
+  {
+   "codigo": "CLI-0038",
+   "nombre": "Depósito Atitlán",
+   "segmento": "mayorista",
+   "correo": "compras.depositoatitlan@prueba.tylsefa.com",
+   "contacto": "Rodrigo Monzón",
+   "nit": "5876803-3"
+  },
+  {
+   "codigo": "CLI-0039",
+   "nombre": "Depósito Aurora",
+   "segmento": "mayorista",
+   "correo": "compras.depositoaurora@prueba.tylsefa.com",
+   "contacto": "Licda. Héctor Castillo",
+   "nit": "3270731-2"
+  },
+  {
+   "codigo": "CLI-0040",
+   "nombre": "Depósito Belén",
+   "segmento": "mayorista",
+   "correo": "compras.depositobelen@prueba.tylsefa.com",
+   "contacto": "Ing. Karla Juárez",
+   "nit": "7549947-9"
+  },
+  {
+   "codigo": "CLI-0041",
+   "nombre": "Depósito Buen Samaritano",
+   "segmento": "mayorista",
+   "correo": "compras.buensamaritano@prueba.tylsefa.com",
+   "contacto": "Karla Ramírez",
+   "nit": "7308337-2"
+  },
+  {
+   "codigo": "CLI-0042",
+   "nombre": "Depósito Central",
+   "segmento": "mayorista",
+   "correo": "compras.depositocentral@prueba.tylsefa.com",
+   "contacto": "Lic. Carlos Aguilar",
+   "nit": "2232006-7"
+  },
+  {
+   "codigo": "CLI-0043",
+   "nombre": "Depósito Chang",
+   "segmento": "minorista",
+   "correo": "compras.depositochang@prueba.tylsefa.com",
+   "contacto": "Lic. Alejandra Gómez",
+   "nit": "6929115-2"
+  },
+  {
+   "codigo": "CLI-0044",
+   "nombre": "Depósito Corazón de Jesús",
+   "segmento": "mayorista",
+   "correo": "compras.corazonjesus@prueba.tylsefa.com",
+   "contacto": "Lic. Ana Monzón",
+   "nit": "8986364-K"
+  },
+  {
+   "codigo": "CLI-0045",
+   "nombre": "Depósito El Ahorro",
+   "segmento": "mayorista",
+   "correo": "compras.ahorro@prueba.tylsefa.com",
+   "contacto": "Sr. Julio Cifuentes",
+   "nit": "8552102-7"
+  },
+  {
+   "codigo": "CLI-0046",
+   "nombre": "Depósito El Favorito",
+   "segmento": "mayorista",
+   "correo": "compras.favorito@prueba.tylsefa.com",
+   "contacto": "Sr. Kevin Morales",
+   "nit": "9347833-K"
+  },
+  {
+   "codigo": "CLI-0047",
+   "nombre": "Depósito El Milagro",
+   "segmento": "minorista",
+   "correo": "compras.milagro@prueba.tylsefa.com",
+   "contacto": "Mónica Soto",
+   "nit": "3864434-7"
+  },
+  {
+   "codigo": "CLI-0048",
+   "nombre": "Depósito El Triunfo",
+   "segmento": "mayorista",
+   "correo": "compras.triunfo@prueba.tylsefa.com",
+   "contacto": "Mónica Monzón",
+   "nit": "4472642-2"
+  },
+  {
+   "codigo": "CLI-0049",
+   "nombre": "Depósito Fátima",
+   "segmento": "minorista",
+   "correo": "compras.depositofatima@prueba.tylsefa.com",
+   "contacto": "Sra. Rodrigo Barrios",
+   "nit": "8697676-1"
+  },
+  {
+   "codigo": "CLI-0050",
+   "nombre": "Depósito La Barata",
+   "segmento": "mayorista",
+   "correo": "compras.barata@prueba.tylsefa.com",
+   "contacto": "Julio Pérez",
+   "nit": "7696744-1"
+  },
+  {
+   "codigo": "PRU-0001",
+   "nombre": "Farmacia Prueba Uno",
+   "segmento": "minorista",
+   "correo": "bernonromero@gmail.com",
+   "contacto": "Bernon Romero",
+   "nit": "1572987-7"
+  },
+  {
+   "codigo": "PRU-0002",
+   "nombre": "Farmacia Prueba Dos",
+   "segmento": "minorista",
+   "correo": "bromerol@miumg.edu.gt",
+   "contacto": "Bernon Romero",
+   "nit": "4279843-4"
+  },
+  {
+   "codigo": "PRU-0003",
+   "nombre": "Droguería Prueba Tres",
+   "segmento": "mayorista",
+   "correo": "bernonromero@gmail.com",
+   "contacto": "Bernon Romero",
+   "nit": "3908563-5"
+  },
+  {
+   "codigo": "PRU-0004",
+   "nombre": "Farmacia Prueba Cuatro",
+   "segmento": "minorista",
+   "correo": "bernonromero@gmail.com",
+   "contacto": "Bernon Romero",
+   "nit": "1758944-4"
+  },
+  {
+   "codigo": "PRU-0005",
+   "nombre": "Distribuidora Prueba Cinco",
+   "segmento": "mayorista",
+   "correo": "bromerol@miumg.edu.gt",
+   "contacto": "Bernon Romero",
+   "nit": "1808451-6"
+  }
+ ]
+}
