@@ -19,8 +19,8 @@
       ayuda.dataset.servidor = '';
       ayuda.textContent = mensaje;
       ayuda.style.display = 'block';
-      // En campos con prefijo (COT-, Q) o con botón de ver contraseña, el mensaje va debajo del grupo.
-      const grupo = control.closest('.ty-prefijo, .ty-campo-clave') || control;
+      // En campos con prefijo (COT-, Q), con botón de ver contraseña o en un selector de lista, el mensaje va debajo del grupo.
+      const grupo = control.closest('.ty-prefijo, .ty-campo-clave, .ty-selector') || control;
       grupo.insertAdjacentElement('afterend', ayuda);
       primero ??= control;
     }
@@ -95,6 +95,13 @@
   // "Cristian Josué López León" → "Cristian López"
   const nombreCorto = (completo = '') => { const p = completo.split(' '); return p.length >= 4 ? `${p[0]} ${p[2]}` : completo; };
   const fechaHora = (iso) => formatoFecha.format(new Date(iso));
+
+  // Con la lista desplegable abierta, Esc solo la cierra a ella y no la ventana que la contiene.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const lista = e.target.closest?.('select');
+    try { if (lista && lista.matches(':open')) e.stopPropagation(); } catch { /* navegador sin :open */ }
+  }, true);
 
   window.UI = { escapar, mostrarErrores, limpiarErrores, datos, confirmar, ocupado, demorar, moneda, fechaHora, fecha, hora, nombreCorto };
 })();

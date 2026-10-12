@@ -61,7 +61,7 @@
 
   <!-- Registro y corrección -->
   <div class="modal fade ty-dialogo" id="dialogo-cotizacion" tabindex="-1" aria-labelledby="dialogo-cotizacion-titulo" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
       <form class="modal-content" novalidate>
         <div class="modal-header">
           <h2 class="modal-title" id="dialogo-cotizacion-titulo">Registrar cotización</h2>
@@ -79,8 +79,19 @@
             <div class="col-12"><label class="form-label" for="c-vendedor">Vendedor que atendió</label>
               <select class="form-select" id="c-vendedor" name="idVendedor" required><option value="">Elija…</option></select></div>
             <div class="col-12"><label class="form-label" for="c-filtro-cliente">Empresa cliente</label>
-              <input class="form-control mb-2" id="c-filtro-cliente" type="search" placeholder="Escriba para buscar por nombre o código" autocomplete="off">
-              <select class="form-select" id="c-cliente" name="idCliente" size="5" required aria-label="Empresa cliente" aria-describedby="c-cliente-ayuda"></select>
+              <div class="ty-selector" id="c-selector">
+                <div class="ty-selector-filtros">
+                  <div class="buscar"><i class="bi bi-search" aria-hidden="true"></i>
+                    <input class="form-control" id="c-filtro-cliente" type="search" placeholder="Buscar por código o nombre" autocomplete="off" aria-controls="c-clientes"></div>
+                  <label class="visually-hidden" for="c-filtro-segmento">Segmento</label>
+                  <select class="form-select" id="c-filtro-segmento">
+                    <option value="">Todos</option><option value="minorista">Minoristas</option><option value="mayorista">Mayoristas</option>
+                  </select>
+                </div>
+                <div class="ty-selector-cabecera" aria-hidden="true"><span>Código</span><span>Empresa</span><span>Segmento</span><span>Estado</span></div>
+                <div class="ty-selector-lista" id="c-clientes" role="listbox" aria-label="Empresa cliente" aria-describedby="c-cliente-ayuda"></div>
+                <input type="hidden" id="c-cliente" name="idCliente">
+              </div>
               <div class="form-text" id="c-cliente-ayuda">El segmento define quién atiende el caso si el cliente califica mal.</div></div>
             <div class="col-12"><div class="form-check">
               <input class="form-check-input" type="checkbox" id="c-prueba" name="esPrueba">

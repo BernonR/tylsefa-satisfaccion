@@ -38,7 +38,8 @@ module.exports = {
   // Correos de aviso (M05) por Resend. Sin llave no se envía nada (desarrollo y pruebas).
   correo: {
     llave: process.env.RESEND_API_KEY || '',
-    remitente: process.env.CORREO_REMITENTE || 'Tylsefa Avisos <avisos@tylsefa.com>',
+    // Dirección que no recibe respuestas: todo lo del caso debe quedar registrado en el sistema.
+    remitente: process.env.CORREO_REMITENTE || 'Tylsefa Avisos <no-responder@tylsefa.com>',
     // Dominios inventados para los datos de prueba: nunca se les escribe.
     dominiosOmitidos: ['prueba.tylsefa.com', 'pruebas.tylsefa.com'],
   },

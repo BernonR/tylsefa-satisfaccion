@@ -71,13 +71,13 @@ async function casoNuevo(idCaso) {
       idCaso, para: c.correoCliente, tipo: 'caso_cliente',
       mensaje: {
         asunto: `Tylsefa: registramos su caso ${c.numero}`,
-        responderA: c.correoResponsable,
         ...correo.plantilla({
           titulo: `Su caso ${c.numero} quedó registrado`,
           saludo: c.contacto ? `Estimado(a) ${c.contacto}:` : 'Estimado cliente:',
           parrafos: [
             'Gracias por calificar nuestra atención. Lamentamos que su experiencia no haya sido buena.',
-            `${c.segmento === 'mayorista' ? 'La gerencia' : 'Un supervisor'} le contactará en un plazo máximo de ${plazoTexto(c.minutosContacto)}. Puede responder a este correo si desea agregar algo.`,
+            `${c.segmento === 'mayorista' ? 'La gerencia' : 'Un supervisor'} le contactará en un plazo máximo de ${plazoTexto(c.minutosContacto)} para conocer los detalles y darle una solución.`,
+            'Este es un mensaje automático: por favor no lo responda. Todo lo que comente con nuestro personal quedará registrado en su caso.',
           ],
           filas: [['Número de caso', c.numero], ['Cotización', c.cotizacion]],
         }),
@@ -152,11 +152,11 @@ async function casoCerrado(idCaso) {
     idCaso, para: c.correoCliente, tipo: 'caso_cerrado',
     mensaje: {
       asunto: `Tylsefa: su caso ${c.numero} fue atendido`,
-      responderA: c.correoResponsable,
       ...correo.plantilla({
         titulo: `Cerramos su caso ${c.numero}`,
         saludo: c.contacto ? `Estimado(a) ${c.contacto}:` : 'Estimado cliente:',
-        parrafos: ['Gracias por darnos la oportunidad de mejorar. Este es el resumen de la atención a su caso:', c.resolucion],
+        parrafos: ['Gracias por darnos la oportunidad de mejorar. Este es el resumen de la atención a su caso:', c.resolucion,
+          'Este es un mensaje automático: por favor no lo responda.'],
         filas: [['Número de caso', c.numero], ['Cotización', c.cotizacion]],
       }),
     },

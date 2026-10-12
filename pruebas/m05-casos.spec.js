@@ -111,15 +111,17 @@ test('CP-M05-02 no se cierra sin primer contacto ni sin una resolución completa
   expect((await supervisor.request.post(`/api/casos/${caso.id}/actuaciones`, { data: { descripcion: 'Después del cierre' } })).status()).toBe(409);
 });
 
-test('CP-M05-03 el caso mayorista lo cierra la gerencia; el supervisor solo da seguimiento', async ({ browser }) => {
+test('CP-M05-03 en el caso mayorista la gerencia registra el contacto y cierra; el supervisor en copia solo deja actuaciones', async ({ browser }) => {
   const caso = await crearCaso({ cliente: mayorista, calificacion: 1 });
   expect((await supervisor.request.get(`/api/casos/${caso.id}`)).status()).toBe(200);
-  expect((await supervisor.request.post(`/api/casos/${caso.id}/contacto`, { data: { nota: 'El supervisor llamó primero' } })).status()).toBe(200);
-  const r = await supervisor.request.post(`/api/casos/${caso.id}/cerrar`, { data: { resolucion: 'El supervisor intenta cerrar el caso.' } });
-  expect(r.status()).toBe(403);
+  expect((await supervisor.request.post(`/api/casos/${caso.id}/contacto`, { data: { nota: 'El supervisor intenta el contacto' } })).status()).toBe(403);
+  expect((await supervisor.request.post(`/api/casos/${caso.id}/actuaciones`, { data: { descripcion: 'Nota interna del supervisor' } })).status()).toBe(201);
   const gerente = await contexto(browser, usuarios.gerente.correo);
   const detalle = (await (await gerente.request.get(`/api/casos/${caso.id}`)).json()).caso;
-  expect(detalle.puedeCerrar).toBe(true);
+  expect(detalle).toMatchObject({ puedeContactar: true, puedeCerrar: true });
+  expect((await gerente.request.post(`/api/casos/${caso.id}/contacto`, { data: { nota: 'La gerente llamó al cliente' } })).status()).toBe(200);
+  const r = await supervisor.request.post(`/api/casos/${caso.id}/cerrar`, { data: { resolucion: 'El supervisor intenta cerrar el caso.' } });
+  expect(r.status()).toBe(403);
   expect((await gerente.request.post(`/api/casos/${caso.id}/cerrar`, { data: { resolucion: 'La gerente acordó un nuevo plazo de entrega.' } })).status()).toBe(200);
   await gerente.close();
 });
@@ -209,13 +211,18 @@ test('CP-M05-08 el vendedor lee su retroalimentación, marca Enterado y confirma
   if (ajena) expect((await page.request.post(`/api/retroalimentacion/${ajena.id_respuesta}/enterado`)).status()).toBe(409);
 });
 
-test('CP-M05-09 cuando el supervisor avanza un caso mayorista, la gerencia recibe el aviso por correo y en la aplicación', async () => {
+test('CP-M05-09 los avances del caso mayorista se avisan por correo y en la aplicación a la gerencia y al supervisor', async ({ browser }) => {
   const caso = await crearCaso({ cliente: mayorista, calificacion: 2 });
   const { rows: [g] } = await bd.consulta('SELECT id_responsable FROM caso_servicio WHERE id_caso = $1', [caso.id]);
-  expect((await supervisor.request.post(`/api/casos/${caso.id}/contacto`, { data: { nota: 'Llamé al cliente y ofrecí envío sin costo.' } })).status()).toBe(200);
+  // El supervisor (en copia) deja una actuación: la gerente responsable recibe el aviso.
   expect((await supervisor.request.post(`/api/casos/${caso.id}/actuaciones`, { data: { descripcion: 'Coaching al vendedor sobre existencias.' } })).status()).toBe(201);
-  // La gerente (responsable) recibe ambos avances; quien los registró no se avisa a sí mismo.
   await expect.poll(async () => (await notificaciones(caso.id)).filter((n) => n.tipo === 'caso_actualizado' && n.usuario === g.id_responsable).map((n) => n.canal).sort())
-    .toEqual(['aplicacion', 'aplicacion', 'correo', 'correo']);
+    .toEqual(['aplicacion', 'correo']);
   expect((await notificaciones(caso.id)).some((n) => n.tipo === 'caso_actualizado' && n.usuario === idSupervisor)).toBe(false);
+  // La gerencia registra el contacto: ahora el aviso le llega al supervisor.
+  const gerente = await contexto(browser, usuarios.gerente.correo);
+  expect((await gerente.request.post(`/api/casos/${caso.id}/contacto`, { data: { nota: 'La gerente llamó y ofreció envío sin costo.' } })).status()).toBe(200);
+  await expect.poll(async () => (await notificaciones(caso.id)).filter((n) => n.tipo === 'caso_actualizado' && n.usuario === idSupervisor).map((n) => n.canal).sort())
+    .toEqual(['aplicacion', 'correo']);
+  await gerente.close();
 });

@@ -42,12 +42,15 @@ rutas.get('/:id', async (req, res) => {
   const caso = await cargar(req, res);
   if (!caso) return;
   await avisos.marcarLeidos(caso.id, req.usuario.id_usuario);
-  res.json({ caso: { ...(await casos.detalle(caso.id)), puedeCerrar: casos.puedeCerrar(req.usuario, caso) } });
+  res.json({ caso: { ...(await casos.detalle(caso.id)), puedeContactar: casos.puedeContactar(req.usuario, caso), puedeCerrar: casos.puedeCerrar(req.usuario, caso) } });
 });
 
 rutas.post('/:id/contacto', async (req, res) => {
   const caso = await cargar(req, res);
   if (!caso) return;
+  if (!casos.puedeContactar(req.usuario, caso)) {
+    return res.status(403).json({ mensaje: 'En los casos de clientes mayoristas el primer contacto lo registra la gerencia.' });
+  }
   const { texto, error } = validarTextoCaso(req.body?.nota, 5, 500, 'cómo contactó al cliente y qué le dijo');
   if (error) return invalido(res, 'nota', error);
   if (!(await casos.registrarContacto(caso.id, req.usuario.id_usuario, texto))) {

@@ -12,13 +12,13 @@ function omitido(direccion) {
 
 // Devuelve 'enviada', 'fallida' o 'pendiente'. Nunca lanza error: un correo que no sale
 // no debe impedir que se registre la respuesta ni el caso.
-async function enviar({ para, asunto, html, texto, responderA }) {
+async function enviar({ para, asunto, html, texto }) {
   if (omitido(para) || !config.correo.llave) return 'pendiente';
   try {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${config.correo.llave}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: config.correo.remitente, to: [para], subject: asunto, html, text: texto, reply_to: responderA || undefined }),
+      body: JSON.stringify({ from: config.correo.remitente, to: [para], subject: asunto, html, text: texto }),
       signal: AbortSignal.timeout(10000),
     });
     if (!r.ok) {
@@ -51,7 +51,7 @@ function plantilla({ titulo, saludo, parrafos = [], filas = [], boton, pie }) {
         ${saludo ? `<p style="margin:0 0 12px;color:#111111;font-size:15px">${escapar(saludo)}</p>` : ''}
         ${parrafos.map((p) => `<p style="margin:0 0 12px;color:#333f44;font-size:15px;line-height:1.55">${escapar(p)}</p>`).join('')}
         ${tabla}${accion}
-        <p style="margin:24px 0 0;color:#8494a3;font-size:12px">${escapar(pie || 'Droguería y Comercial Tylsefa · Sucursal Tulam Tzu, zona 4 de Mixco. Mensaje automático del sistema de satisfacción del cliente.')}</p>
+        <p style="margin:24px 0 0;color:#8494a3;font-size:12px">${escapar(pie || 'Droguería y Comercial Tylsefa · Sucursal Tulam Tzu, zona 4 de Mixco. Mensaje automático del sistema de satisfacción del cliente; por favor no lo responda.')}</p>
       </td></tr>
     </table>
   </td></tr></table></body></html>`;

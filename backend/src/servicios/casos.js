@@ -78,6 +78,12 @@ function puedeVer(usuario, caso) {
   return usuario.permisos.includes('caso.cerrar.mayorista') || [caso.idResponsable, caso.idCopia].includes(usuario.id_usuario);
 }
 
+// Primer contacto (CU-06, paso 4): lo registra el responsable. En mayoristas el responsable es la
+// gerencia; el supervisor va en copia y solo agrega actuaciones internas.
+function puedeContactar(usuario, caso) {
+  return caso.segmento !== 'mayorista' || usuario.permisos.includes('caso.cerrar.mayorista');
+}
+
 // Minorista: supervisor o gerente. Mayorista: solo la gerencia (RF10, RS06).
 function puedeCerrar(usuario, caso) {
   return usuario.permisos.includes(caso.segmento === 'mayorista' ? 'caso.cerrar.mayorista' : 'caso.cerrar.minorista');
@@ -150,4 +156,4 @@ async function escalarVencidos(ahora = new Date()) {
   return escalados;
 }
 
-module.exports = { listar, obtener, detalle, puedeVer, puedeCerrar, registrarContacto, agregarActuacion, cerrar, escalarVencidos, conPlazos };
+module.exports = { listar, obtener, detalle, puedeVer, puedeContactar, puedeCerrar, registrarContacto, agregarActuacion, cerrar, escalarVencidos, conPlazos };

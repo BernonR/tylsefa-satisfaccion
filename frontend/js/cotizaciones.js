@@ -73,16 +73,51 @@ Panel.listo.then((yo) => {
   const dialogo = document.getElementById('dialogo-cotizacion');
   const formulario = dialogo.querySelector('form');
   const modal = new bootstrap.Modal(dialogo);
-  const selectCliente = formulario.idCliente;
+  const campoCliente = document.getElementById('c-cliente');
+  const listaClientes = document.getElementById('c-clientes');
   const filtroCliente = document.getElementById('c-filtro-cliente');
+  const filtroSegmento = document.getElementById('c-filtro-segmento');
+  const chipSegmento = (s) => (s === 'mayorista'
+    ? '<span class="ty-estado ty-estado-abierto">Mayorista</span>'
+    : '<span class="ty-estado ty-estado-neutro">Minorista</span>');
 
-  function pintarClientes(seleccion) {
+  // Lista de empresas como en Catálogos: código, nombre, segmento y estado; se filtra al escribir.
+  function pintarClientes() {
     const texto = filtroCliente.value.trim().toLowerCase();
-    const visibles = opciones.clientes.filter((c) => !texto || `${c.nombre} ${c.codigo}`.toLowerCase().includes(texto) || String(c.id) === String(seleccion));
-    selectCliente.innerHTML = visibles.map((c) => `<option value="${c.id}">${escapar(c.nombre)} · ${escapar(c.codigo)} (${c.segmento === 'mayorista' ? 'Mayorista' : 'Minorista'})</option>`).join('');
-    if (seleccion) selectCliente.value = String(seleccion);
+    const segmento = filtroSegmento.value;
+    const elegido = campoCliente.value;
+    const visibles = opciones.clientes.filter((c) => (String(c.id) === elegido)
+      || ((!texto || `${c.codigo} ${c.nombre}`.toLowerCase().includes(texto)) && (!segmento || c.segmento === segmento)));
+    listaClientes.innerHTML = visibles.length
+      ? visibles.map((c) => `
+        <button type="button" class="ty-selector-fila" role="option" data-id="${c.id}" aria-selected="${String(c.id) === elegido}">
+          <span class="ty-cifra codigo">${escapar(c.codigo)}</span>
+          <span class="nombre">${escapar(c.nombre)}</span>
+          <span>${chipSegmento(c.segmento)}</span>
+          <span><span class="ty-estado ty-estado-cerrado"><i class="bi bi-check-circle" aria-hidden="true"></i>Activa</span></span>
+        </button>`).join('')
+      : '<p class="ty-secundario text-center my-3">Ninguna empresa activa coincide con la búsqueda.</p>';
   }
-  filtroCliente.addEventListener('input', () => pintarClientes(selectCliente.value));
+  function elegirCliente(id) {
+    campoCliente.value = id ? String(id) : '';
+    listaClientes.querySelectorAll('.ty-selector-fila').forEach((f) => f.setAttribute('aria-selected', String(f.dataset.id === campoCliente.value)));
+    document.getElementById('c-selector').classList.remove('is-invalid');
+    formulario.querySelectorAll('[data-servidor]').forEach((n) => { if (n.previousElementSibling?.id === 'c-selector') n.remove(); });
+  }
+  listaClientes.addEventListener('click', (e) => {
+    const fila = e.target.closest('.ty-selector-fila');
+    if (fila) elegirCliente(fila.dataset.id);
+  });
+  // Flechas para moverse entre empresas; Enter o espacio la elige (los botones ya lo hacen).
+  listaClientes.addEventListener('keydown', (e) => {
+    if (!['ArrowDown', 'ArrowUp'].includes(e.key)) return;
+    const filas = [...listaClientes.querySelectorAll('.ty-selector-fila')];
+    const i = filas.indexOf(document.activeElement);
+    filas[Math.max(0, Math.min(filas.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))]?.focus();
+    e.preventDefault();
+  });
+  filtroCliente.addEventListener('input', pintarClientes);
+  filtroSegmento.addEventListener('change', pintarClientes);
 
   async function abrir(cotizacion = null) {
     editando = cotizacion;
@@ -90,7 +125,11 @@ Panel.listo.then((yo) => {
     UI.limpiarErrores(formulario);
     opciones = await Api.pedir('/api/cotizaciones/opciones');
     formulario.idVendedor.innerHTML = '<option value="">Elija…</option>' + opciones.vendedores.map((v) => `<option value="${v.id}">${escapar(v.nombre)}</option>`).join('');
-    pintarClientes(cotizacion?.idCliente);
+    filtroCliente.value = '';
+    filtroSegmento.value = '';
+    campoCliente.value = cotizacion ? String(cotizacion.idCliente) : '';
+    document.getElementById('c-selector').classList.remove('is-invalid');
+    pintarClientes();
     document.getElementById('dialogo-cotizacion-titulo').textContent = cotizacion ? `Corregir ${cotizacion.numero}` : 'Registrar cotización';
     document.getElementById('guardar-cotizacion').textContent = cotizacion ? 'Guardar corrección' : 'Registrar';
     if (cotizacion) {
@@ -101,7 +140,10 @@ Panel.listo.then((yo) => {
     }
     modal.show();
   }
-  dialogo.addEventListener('shown.bs.modal', () => formulario.numero.focus());
+  dialogo.addEventListener('shown.bs.modal', () => {
+    formulario.numero.focus();
+    listaClientes.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+  });
 
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
@@ -110,7 +152,7 @@ Panel.listo.then((yo) => {
       numero: formulario.numero.value,
       monto: formulario.monto.value,
       idVendedor: formulario.idVendedor.value,
-      idCliente: selectCliente.value,
+      idCliente: campoCliente.value,
       esPrueba: formulario.esPrueba.checked,
     };
     UI.ocupado(boton, true);

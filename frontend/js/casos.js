@@ -37,7 +37,9 @@ Panel.listo.then((yo) => {
       escalado: ['ty-estado-escalado', 'bi-arrow-up-circle', 'Escalado'],
       cerrado: ['ty-estado-cerrado', 'bi-check-circle', 'Cerrado'],
     }[c.estado];
-    return `<span class="ty-estado ${e[0]}"><i class="bi ${e[1]}" aria-hidden="true"></i>${e[2]}</span>`;
+    const fue = c.escalado && c.estado !== 'escalado'
+      ? ' <span class="ty-estado ty-estado-escalado ty-estado-mini" title="Se escaló porque venció el plazo de primer contacto"><i class="bi bi-arrow-up-circle" aria-hidden="true"></i>Escalado</span>' : '';
+    return `<span class="ty-estado ${e[0]}"><i class="bi ${e[1]}" aria-hidden="true"></i>${e[2]}</span>${fue}`;
   }
 
   function plazo(c) {
@@ -59,7 +61,8 @@ Panel.listo.then((yo) => {
     const pendientes = lista.filter((c) => c.estado !== 'cerrado');
     document.getElementById('k-abiertos').textContent = lista.filter((c) => c.estado === 'abierto').length;
     document.getElementById('k-seguimiento').textContent = lista.filter((c) => c.estado === 'en_seguimiento').length;
-    document.getElementById('k-escalados').textContent = lista.filter((c) => c.estado === 'escalado').length;
+    // Escalados: casos pendientes cuyo plazo de primer contacto venció, aunque ya tengan contacto.
+    document.getElementById('k-escalados').textContent = pendientes.filter((c) => c.escalado).length;
     document.getElementById('k-expuesto').textContent = moneda(pendientes.filter((c) => !c.esPrueba).reduce((t, c) => t + c.monto, 0));
     document.getElementById('resumen').textContent = `${lista.length} casos`;
     if (!lista.length) {
@@ -107,14 +110,23 @@ Panel.listo.then((yo) => {
     const vendedor = c.acuseVendedor
       ? `Enterado el ${escapar(cuando(c.acuseVendedor))}${c.coachingConfirmado ? ` · coaching confirmado el ${escapar(cuando(c.coachingConfirmado))}` : ''}`
       : 'Aún no marca Enterado';
+    // Lo interno (actuaciones) y lo que ve el cliente (resolución) se distinguen con un aviso claro.
+    const interno = '<span class="ty-alcance interno"><i class="bi bi-lock" aria-hidden="true"></i>Solo uso interno: el cliente no lo ve</span>';
+    const alCliente = '<span class="ty-alcance cliente"><i class="bi bi-envelope" aria-hidden="true"></i>Este texto se envía al cliente por correo</span>';
+    const actuacion = () => formulario('f-actuacion', `Agregar actuación ${interno}`, 'descripcion', '<i class="bi bi-plus-lg" aria-hidden="true"></i>Agregar', 'btn-ty-secundario', 'Llamadas, acuerdos o coaching al vendedor. Queda en el historial del caso.');
     let acciones = '';
     if (c.estado !== 'cerrado') {
       if (!c.contactado) {
-        acciones += formulario('f-contacto', 'Registrar primer contacto', 'nota', '<i class="bi bi-telephone" aria-hidden="true"></i>Registrar contacto', 'btn-ty-primario', 'Cómo contactó al cliente y qué se acordó.');
+        if (c.puedeContactar) {
+          acciones += formulario('f-contacto', `Registrar primer contacto ${interno}`, 'nota', '<i class="bi bi-telephone" aria-hidden="true"></i>Registrar contacto', 'btn-ty-primario', 'Cómo contactó al cliente y qué se acordó.');
+        } else {
+          acciones += '<p class="ty-mensaje info mb-0"><i class="bi bi-info-circle" aria-hidden="true"></i>Cliente mayorista: el primer contacto y el cierre los registra la gerencia. Usted puede dejar actuaciones internas.</p>';
+          acciones += actuacion();
+        }
       } else {
-        acciones += formulario('f-actuacion', 'Agregar actuación', 'descripcion', '<i class="bi bi-plus-lg" aria-hidden="true"></i>Agregar', 'btn-ty-secundario', 'Llamadas, acuerdos o coaching al vendedor.');
+        acciones += actuacion();
         acciones += c.puedeCerrar
-          ? formulario('f-cierre', 'Cerrar el caso', 'resolucion', '<i class="bi bi-check2-circle" aria-hidden="true"></i>Cerrar caso', 'btn-ty-primario', 'La resolución se le enviará al cliente por correo.')
+          ? formulario('f-cierre', `Cerrar el caso ${alCliente}`, 'resolucion', '<i class="bi bi-check2-circle" aria-hidden="true"></i>Cerrar caso', 'btn-ty-primario', 'Escriba la resolución pensando en el cliente: la recibirá tal como la escriba. Las actuaciones del historial no se le envían.')
           : '<p class="ty-mensaje info mb-0"><i class="bi bi-info-circle" aria-hidden="true"></i>Los casos de clientes mayoristas los cierra la gerencia.</p>';
       }
     }
@@ -179,7 +191,7 @@ Panel.listo.then((yo) => {
     };
     enviar('f-contacto', 'contacto', 'nota');
     enviar('f-actuacion', 'actuaciones', 'descripcion');
-    enviar('f-cierre', 'cerrar', 'resolucion', { titulo: `¿Cerrar ${c.numero}?`, texto: 'El cliente recibirá la resolución por correo y el caso ya no se podrá modificar.', boton: 'Cerrar caso' });
+    enviar('f-cierre', 'cerrar', 'resolucion', { titulo: `¿Cerrar ${c.numero}?`, texto: 'La resolución se enviará al cliente por correo tal como está escrita. Las actuaciones quedan solo en el registro interno. El caso ya no se podrá modificar.', boton: 'Cerrar y enviar al cliente' });
   }
 
   async function abrir(id) {
