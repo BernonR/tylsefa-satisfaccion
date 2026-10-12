@@ -54,7 +54,10 @@
       document.body.appendChild(nodo);
       const modal = new bootstrap.Modal(nodo);
       let respuesta = false;
-      nodo.querySelector('[data-respuesta]').addEventListener('click', () => { respuesta = true; modal.hide(); });
+      let abierta = false;
+      // Si se toca antes de que termine de abrir, se cierra en cuanto termina (Bootstrap ignora hide() a medio abrir).
+      nodo.addEventListener('shown.bs.modal', () => { abierta = true; if (respuesta) modal.hide(); });
+      nodo.querySelector('[data-respuesta]').addEventListener('click', () => { respuesta = true; if (abierta) modal.hide(); });
       nodo.addEventListener('hidden.bs.modal', () => { nodo.remove(); resolver(respuesta); });
       modal.show();
     });

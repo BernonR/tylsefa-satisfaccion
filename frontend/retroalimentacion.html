@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retroalimentación | Tylsefa</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="ty-pendiente" data-pagina="retroalimentacion">
+  <main class="ty-principal">
+    <header class="ty-encabezado">
+      <div>
+        <h1 class="ty-titulo-grande mb-1">Retroalimentación</h1>
+        <p class="ty-secundario mb-0">Lo que opinan los clientes que usted atendió. Marque <strong>Enterado</strong> al leer cada una.</p>
+      </div>
+    </header>
+
+    <div class="ty-contadores" aria-live="polite">
+      <div class="ty-contador"><div class="etiqueta">Calificación promedio</div><div class="valor" id="k-promedio">—</div></div>
+      <div class="ty-contador"><div class="etiqueta">Por leer</div><div class="valor" id="k-por-leer">—</div></div>
+      <div class="ty-contador"><div class="etiqueta">Con caso abierto</div><div class="valor" id="k-casos">—</div></div>
+    </div>
+
+    <div class="ty-segmentos" role="tablist" aria-label="Filtrar">
+      <button type="button" class="activo" data-filtro="por-leer" role="tab" aria-selected="true">Por leer</button>
+      <button type="button" data-filtro="todas" role="tab" aria-selected="false">Todas</button>
+    </div>
+
+    <div class="ty-retro" id="lista" aria-live="polite"></div>
+  </main>
+  <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sistema.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/retroalimentacion.js"></script>
+</body>
+</html>

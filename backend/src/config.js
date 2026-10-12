@@ -35,6 +35,15 @@ module.exports = {
     nombreCookie: 'tylsefa_sesion',
     segura: produccion,
   },
+  // Correos de aviso (M05) por Resend. Sin llave no se envía nada (desarrollo y pruebas).
+  correo: {
+    llave: process.env.RESEND_API_KEY || '',
+    remitente: process.env.CORREO_REMITENTE || 'Tylsefa Avisos <avisos@tylsefa.com>',
+    // Dominios inventados para los datos de prueba: nunca se les escribe.
+    dominiosOmitidos: ['prueba.tylsefa.com', 'pruebas.tylsefa.com'],
+  },
+  // Dirección de la interfaz para los enlaces de los correos.
+  urlAplicacion: process.env.URL_APLICACION || (process.env.ORIGEN_PERMITIDO || '').split(',')[0].trim() || 'http://localhost:3000',
   // Tableta de la terminal de autoservicio (M04): queda autorizada 90 días tras activarla.
   terminal: {
     secreto,

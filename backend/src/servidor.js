@@ -36,6 +36,10 @@ app.use('/api/clientes', require('./rutas/clientes'));
 app.use('/api/personal', require('./rutas/personal'));
 app.use('/api/cotizaciones', require('./rutas/cotizaciones'));
 app.use('/api/terminal', require('./rutas/terminal'));
+const casos = require('./rutas/casos');
+app.use('/api/casos', casos.rutas);
+app.use('/api/retroalimentacion', require('./rutas/retroalimentacion'));
+app.use('/api/avisos', require('./rutas/avisos'));
 app.use('/api', (req, res) => res.status(404).json({ mensaje: 'Ruta no encontrada.' }));
 
 // En la computadora de desarrollo el mismo servidor entrega la interfaz.
@@ -52,6 +56,8 @@ app.use((error, req, res, next) => {
 
 if (require.main === module) {
   app.listen(config.puerto, () => console.log(`Servidor Tylsefa en http://localhost:${config.puerto}`));
+  // Cada minuto se revisan los casos cuyo plazo de primer contacto venció (escalamiento).
+  setInterval(() => casos.revisarVencidos().catch((e) => console.error('Revisión de plazos:', e.message)), 60000);
 }
 
 module.exports = app;

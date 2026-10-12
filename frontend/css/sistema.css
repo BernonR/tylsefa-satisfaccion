@@ -666,3 +666,50 @@ body.ty-pendiente .ty-app { visibility: hidden; }
 .ty-instrucciones { margin: 0; padding-left: 1.25rem; display: grid; gap: 0.625rem; color: var(--ty-texto-2); }
 .ty-instrucciones strong { color: var(--ty-texto); }
 .ty-activar .acciones { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+/* ---------- Casos de servicio y retroalimentación (M05) ---------- */
+.ty-menu .cuenta { margin-left: auto; min-width: 1.375rem; height: 1.375rem; padding: 0 0.375rem; border-radius: var(--ty-radio-pildora); display: grid; place-items: center; background: var(--ty-aviso); color: #1a1205; font-size: 0.75rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ty-contador.alerta .valor { color: var(--ty-error); }
+.ty-fila-accion { cursor: pointer; }
+.ty-fila-accion:focus-visible { outline: 2px solid var(--ty-marca-clara); outline-offset: -2px; }
+.ty-plazo { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; color: var(--ty-texto-2); white-space: nowrap; }
+.ty-plazo.tarde { color: var(--ty-error); font-weight: 600; }
+.ty-plazo.bien { color: var(--ty-exito); }
+.ty-nota { display: inline-flex; align-items: baseline; gap: 0.0625rem; padding: 0.1875rem 0.625rem; border-radius: var(--ty-radio-pildora); font-weight: 700; font-variant-numeric: tabular-nums; }
+.ty-nota small { font-size: 0.6875rem; font-weight: 600; opacity: 0.75; }
+.ty-nota.n1, .ty-nota.n2 { background: var(--ty-error-suave); color: var(--ty-error); }
+.ty-nota.n3 { background: var(--ty-aviso-suave); color: var(--ty-aviso); }
+.ty-nota.n4, .ty-nota.n5 { background: var(--ty-exito-suave); color: var(--ty-exito); }
+
+.ty-caso-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; }
+.ty-leyenda-titulo { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ty-texto-3); margin: 0 0 0.75rem; }
+.ty-datos { margin: 0; display: grid; gap: 0.75rem; }
+.ty-datos .dato { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 0.75rem; }
+.ty-datos dt { font-weight: 500; color: var(--ty-texto-3); font-size: 0.875rem; }
+.ty-datos dd { margin: 0; font-size: 0.9375rem; overflow-wrap: anywhere; }
+.ty-cita { margin: 0; padding: 0.625rem 0.875rem; border-left: 3px solid var(--ty-marca); background: var(--ty-superficie-2); border-radius: 0 var(--ty-radio-sm) var(--ty-radio-sm) 0; color: var(--ty-texto); font-style: italic; }
+.ty-resolucion { margin-top: 1.5rem; padding: 1rem 1.25rem; border-radius: var(--ty-radio-lg); background: var(--ty-exito-suave); }
+.ty-historial { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.875rem; position: relative; }
+.ty-historial::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--ty-linea-fuerte); }
+.ty-historial li { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 0.875rem; position: relative; font-size: 0.9375rem; }
+.ty-historial .punto { width: 12px; height: 12px; border-radius: 50%; background: var(--ty-marca); margin-top: 0.3rem; box-shadow: 0 0 0 3px var(--ty-superficie-1); }
+.ty-acciones-caso { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--ty-linea); display: grid; gap: 1.25rem; }
+@media (max-width: 767.98px) {
+  .ty-caso-grid { grid-template-columns: 1fr; }
+  .ty-datos .dato { grid-template-columns: 6.5rem minmax(0, 1fr); }
+}
+
+.ty-segmentos { display: inline-flex; gap: 0.25rem; padding: 0.25rem; border-radius: var(--ty-radio-pildora); background: var(--ty-superficie-1); margin-bottom: 1rem; }
+.ty-segmentos button { border: 0; background: transparent; color: var(--ty-texto-2); font-weight: 600; font-size: 0.875rem; padding: 0.5rem 1rem; border-radius: var(--ty-radio-pildora); min-height: 36px; transition: background-color var(--ty-t-medio), color var(--ty-t-medio); }
+.ty-segmentos button.activo { background: var(--ty-superficie-3); color: var(--ty-texto); }
+.ty-retro { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: 1rem; }
+.ty-retro .ty-vacio { grid-column: 1 / -1; }
+.ty-retro-tarjeta { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem; }
+.ty-retro-tarjeta.leida { opacity: 0.85; }
+.ty-retro-tarjeta header { display: flex; gap: 0.75rem; align-items: flex-start; }
+.ty-retro-tarjeta .ty-nota { font-size: 1.25rem; padding: 0.375rem 0.75rem; }
+.ty-retro-tarjeta .quien { flex: 1; min-width: 0; }
+.ty-retro-tarjeta .compra { margin: 0; display: flex; gap: 0.5rem; align-items: center; color: var(--ty-texto-2); font-size: 0.9375rem; }
+.ty-retro-tarjeta .caso { display: flex; gap: 0.625rem; padding: 0.75rem; border-radius: var(--ty-radio); background: var(--ty-superficie-2); font-size: 0.9375rem; }
+.ty-retro-tarjeta .caso > .bi { color: var(--ty-marca-clara); }
+.ty-retro-tarjeta footer { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: auto; padding-top: 0.25rem; }
