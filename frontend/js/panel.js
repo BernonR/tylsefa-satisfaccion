@@ -6,7 +6,7 @@
   // Módulos del sistema. "permisos": basta con tener uno; null = todos los perfiles.
   const MODULOS = [
     { id: 'inicio', texto: 'Inicio', icono: 'bi-house', href: 'inicio.html', permisos: null, listo: true },
-    { id: 'cotizaciones', texto: 'Cotizaciones', icono: 'bi-receipt', href: 'cotizaciones.html', listo: false,
+    { id: 'cotizaciones', texto: 'Cotizaciones', icono: 'bi-receipt', href: 'cotizaciones.html', listo: true,
       permisos: ['cotizacion.registrar', 'cotizacion.consultar'],
       descripcion: 'Registrar las cotizaciones que el cliente califica en la terminal.' },
     { id: 'casos', texto: 'Casos de servicio', menu: 'Casos', icono: 'bi-life-preserver', href: 'casos.html', listo: false,

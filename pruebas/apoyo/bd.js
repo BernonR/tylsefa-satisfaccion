@@ -21,13 +21,17 @@ async function ultimaAccion(correo, accion, desde) {
   return rows[0] || null;
 }
 
-// Borra lo que crean las pruebas de M02 para que no se acumule en la base de desarrollo.
+// Borra lo que crean las pruebas (M02, M03…) para que no se acumule en la base de desarrollo.
+// Primero las cotizaciones, porque apuntan a usuarios y empresas de prueba.
+const USUARIOS_TEMPORALES = "(SELECT id_usuario FROM usuario WHERE correo ~ '^m0[0-9]-.*@pruebas[.]tylsefa[.]com$')";
+const DE_PRUEBA = "(SELECT id_usuario FROM usuario WHERE correo LIKE '%@pruebas.tylsefa.com')";
 async function limpiarCatalogos() {
-  await consulta(`UPDATE bitacora_auditoria SET id_usuario = NULL
-                   WHERE id_usuario IN (SELECT id_usuario FROM usuario WHERE correo LIKE 'm02-%@pruebas.tylsefa.com')`);
-  await consulta(`UPDATE usuario SET id_supervisor = NULL
-                   WHERE id_supervisor IN (SELECT id_usuario FROM usuario WHERE correo LIKE 'm02-%@pruebas.tylsefa.com')`);
-  await consulta("DELETE FROM usuario WHERE correo LIKE 'm02-%@pruebas.tylsefa.com'");
+  await consulta(`DELETE FROM cotizacion
+                   WHERE id_vendedor IN ${DE_PRUEBA} OR id_supervisor_registro IN ${DE_PRUEBA}
+                      OR id_cliente IN (SELECT id_cliente FROM empresa_cliente WHERE nombre LIKE 'Prueba automática %')`);
+  await consulta(`UPDATE bitacora_auditoria SET id_usuario = NULL WHERE id_usuario IN ${USUARIOS_TEMPORALES}`);
+  await consulta(`UPDATE usuario SET id_supervisor = NULL WHERE id_supervisor IN ${USUARIOS_TEMPORALES}`);
+  await consulta(`DELETE FROM usuario WHERE id_usuario IN ${USUARIOS_TEMPORALES}`);
   await consulta("DELETE FROM empresa_cliente WHERE nombre LIKE 'Prueba automática %'");
 }
 

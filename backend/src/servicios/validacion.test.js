@@ -2,7 +2,7 @@
 // Pruebas unitarias: reglas de los catálogos de personal y empresas cliente (M02).
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { validarUsuario, validarCliente, identificador } = require('./validacion');
+const { validarUsuario, validarCliente, validarCotizacion, validarMotivo, identificador } = require('./validacion');
 
 test('CP-U11 un vendedor necesita supervisor; los demás perfiles no guardan supervisor', () => {
   const base = { nombres: 'Ana', apellidos: 'López', correo: 'ana@tylsefa.com' };
@@ -31,4 +31,22 @@ test('CP-U14 los identificadores de la dirección solo aceptan enteros positivos
   assert.equal(identificador('0'), null);
   assert.equal(identificador('1 OR 1=1'), null);
   assert.equal(identificador('-3'), null);
+});
+
+test('CP-U15 el número de cotización acepta los 6 dígitos o el formato completo COT-000000', () => {
+  const base = { monto: '12,480.50', idVendedor: 3, idCliente: 9 };
+  assert.equal(validarCotizacion({ ...base, numero: '004517' }).limpio.numero, 'COT-004517');
+  assert.equal(validarCotizacion({ ...base, numero: 'cot-004517' }).valido, true);
+  assert.ok(validarCotizacion({ ...base, numero: '4517' }).errores.numero);
+  assert.ok(validarCotizacion({ ...base, numero: 'COT-00451A' }).errores.numero);
+  assert.equal(validarCotizacion({ ...base, numero: '004517' }).limpio.monto, 12480.5);
+});
+
+test('CP-U16 el monto debe ser mayor que cero y la anulación exige motivo', () => {
+  const base = { numero: '004517', idVendedor: 3, idCliente: 9 };
+  assert.ok(validarCotizacion({ ...base, monto: '0' }).errores.monto);
+  assert.ok(validarCotizacion({ ...base, monto: '-5' }).errores.monto);
+  assert.ok(validarCotizacion({ ...base, monto: 'abc' }).errores.monto);
+  assert.ok(validarMotivo('mal').error);
+  assert.equal(validarMotivo('  Cliente pidió otra cotización  ').motivo, 'Cliente pidió otra cotización');
 });
