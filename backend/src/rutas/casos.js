@@ -54,6 +54,7 @@ rutas.post('/:id/contacto', async (req, res) => {
     return res.status(409).json({ mensaje: 'El primer contacto ya estaba registrado o el caso está cerrado.' });
   }
   await bitacora.registrar({ idUsuario: req.usuario.id_usuario, accion: 'primer_contacto_caso', entidad: 'caso_servicio', idRegistro: caso.id, detalle: caso.numero });
+  avisos.enSegundoPlano(avisos.casoActualizado(caso.id, req.usuario.id_usuario, 'contacto', texto));
   res.json({ mensaje: `Primer contacto registrado en ${caso.numero}.` });
 });
 
@@ -64,6 +65,7 @@ rutas.post('/:id/actuaciones', async (req, res) => {
   if (error) return invalido(res, 'descripcion', error);
   if (!(await casos.agregarActuacion(caso.id, req.usuario.id_usuario, texto))) return res.status(409).json({ mensaje: 'El caso ya está cerrado.' });
   await bitacora.registrar({ idUsuario: req.usuario.id_usuario, accion: 'actuacion_caso', entidad: 'caso_servicio', idRegistro: caso.id, detalle: caso.numero });
+  avisos.enSegundoPlano(avisos.casoActualizado(caso.id, req.usuario.id_usuario, 'actuacion', texto));
   res.status(201).json({ mensaje: 'Actuación registrada.' });
 });
 
@@ -79,6 +81,7 @@ rutas.post('/:id/cerrar', async (req, res) => {
   if (!(await casos.cerrar(caso.id, req.usuario.id_usuario, texto))) return res.status(409).json({ mensaje: 'El caso ya estaba cerrado.' });
   await bitacora.registrar({ idUsuario: req.usuario.id_usuario, accion: 'cierre_caso', entidad: 'caso_servicio', idRegistro: caso.id, detalle: caso.numero });
   avisos.enSegundoPlano(avisos.casoCerrado(caso.id));
+  avisos.enSegundoPlano(avisos.casoActualizado(caso.id, req.usuario.id_usuario, 'cierre', texto));
   res.json({ mensaje: `${caso.numero} cerrado. El cliente recibirá la resolución por correo.` });
 });
 

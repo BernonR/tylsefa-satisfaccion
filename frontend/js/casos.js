@@ -63,18 +63,17 @@ Panel.listo.then((yo) => {
     document.getElementById('k-expuesto').textContent = moneda(pendientes.filter((c) => !c.esPrueba).reduce((t, c) => t + c.monto, 0));
     document.getElementById('resumen').textContent = `${lista.length} casos`;
     if (!lista.length) {
-      cuerpo.innerHTML = '<tr><td colspan="7"><div class="ty-vacio"><i class="bi bi-emoji-smile" aria-hidden="true"></i><p class="ty-secundario mb-0">No hay casos con esos filtros.</p></div></td></tr>';
+      cuerpo.innerHTML = '<tr><td colspan="6"><div class="ty-vacio"><i class="bi bi-emoji-smile" aria-hidden="true"></i><p class="ty-secundario mb-0">No hay casos con esos filtros.</p></div></td></tr>';
       return;
     }
     cuerpo.innerHTML = lista.map((c) => `
       <tr class="ty-fila-accion${c.estado === 'cerrado' ? ' inactivo' : ''}" data-id="${c.id}" tabindex="0" aria-label="Abrir ${escapar(c.numero)}">
-        <td class="ty-cifra principal">${escapar(c.numero)}${c.esPrueba ? '<span class="ty-etiqueta-prueba">Prueba</span>' : ''}<div class="ty-leyenda">${escapar(cuando(c.creado))}</div></td>
-        <td><div class="principal">${escapar(c.cliente)}</div><div class="ty-leyenda">${escapar(c.codigoCliente)} · ${c.segmento === 'mayorista' ? 'Mayorista' : 'Minorista'}</div></td>
-        <td>${calificacion(c.calificacion)}</td>
-        <td class="num ty-cifra">${escapar(moneda(c.monto))}</td>
-        <td title="${escapar(c.responsable)}">${escapar(nombreCorto(c.responsable))}</td>
-        <td>${plazo(c)}</td>
-        <td>${estado(c)}</td>
+        <td class="caso"><div class="ty-cifra principal">${escapar(c.numero)}${c.esPrueba ? '<span class="ty-etiqueta-prueba">Prueba</span>' : ''}</div><div class="mt-1">${estado(c)}</div></td>
+        <td class="cliente"><div class="principal">${escapar(c.cliente)}</div><div class="ty-leyenda">${escapar(c.codigoCliente)} · ${c.segmento === 'mayorista' ? 'Mayorista' : 'Minorista'}</div></td>
+        <td class="nota">${calificacion(c.calificacion)}</td>
+        <td class="num ty-cifra monto">${escapar(moneda(c.monto))}</td>
+        <td class="responsable" data-etiqueta="Responsable" title="${escapar(c.responsable)}">${escapar(nombreCorto(c.responsable))}</td>
+        <td class="plazo">${plazo(c)}<div class="ty-leyenda">Creado ${escapar(corto(c.creado))}</div></td>
       </tr>`).join('');
   }
 

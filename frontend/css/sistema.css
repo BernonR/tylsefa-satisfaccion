@@ -671,6 +671,32 @@ body.ty-pendiente .ty-app { visibility: hidden; }
 .ty-menu .cuenta { margin-left: auto; min-width: 1.375rem; height: 1.375rem; padding: 0 0.375rem; border-radius: var(--ty-radio-pildora); display: grid; place-items: center; background: var(--ty-aviso); color: #1a1205; font-size: 0.75rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .ty-contador.alerta .valor { color: var(--ty-error); }
 .ty-fila-accion { cursor: pointer; }
+/* La bandeja de casos cabe sin desplazamiento lateral desde 1024 px: el nombre de la empresa se parte en líneas. */
+#tabla-casos th, #tabla-casos td { padding-left: 0.875rem; padding-right: 0.875rem; }
+#tabla-casos td.cliente { white-space: normal; min-width: 10rem; max-width: 16rem; }
+/* En pantallas angostas cada caso se muestra como tarjeta: nada queda oculto a la derecha. */
+@media (max-width: 1279.98px) {
+  #tabla-casos { min-width: 0; }
+  #tabla-casos thead { display: none; }
+  #tabla-casos, #tabla-casos tbody { display: block; }
+  #tabla-casos tbody tr[data-id] {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem 1rem; padding: 1rem 1.125rem;
+    grid-template-areas: "caso nota" "cliente monto" "plazo responsable";
+    border-bottom: 1px solid var(--ty-linea);
+  }
+  #tabla-casos tbody tr[data-id]:last-child { border-bottom: 0; }
+  #tabla-casos tbody tr[data-id] td { display: block; padding: 0; border: 0; white-space: normal; max-width: none; min-width: 0; }
+  #tabla-casos td.caso { grid-area: caso; }
+  #tabla-casos td.cliente { grid-area: cliente; }
+  #tabla-casos td.nota { grid-area: nota; justify-self: end; }
+  #tabla-casos td.monto { grid-area: monto; justify-self: end; align-self: start; }
+  #tabla-casos td.plazo { grid-area: plazo; }
+  #tabla-casos td.responsable { grid-area: responsable; justify-self: end; align-self: end; color: var(--ty-texto-2); font-size: 0.875rem; }
+  #tabla-casos td.responsable::before { content: attr(data-etiqueta) ": "; color: var(--ty-texto-3); }
+  #tabla-casos .caso .ty-cifra { display: inline; margin-right: 0.5rem; }
+  #tabla-casos .caso > div { display: inline-block; }
+}
+.ty-datos dd .ty-cifra, .ty-plazo { white-space: nowrap; }
 .ty-fila-accion:focus-visible { outline: 2px solid var(--ty-marca-clara); outline-offset: -2px; }
 .ty-plazo { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; color: var(--ty-texto-2); white-space: nowrap; }
 .ty-plazo.tarde { color: var(--ty-error); font-weight: 600; }

@@ -208,3 +208,14 @@ test('CP-M05-08 el vendedor lee su retroalimentación, marca Enterado y confirma
     WHERE c.id_vendedor <> $1 LIMIT 1`, [vendedor.id]);
   if (ajena) expect((await page.request.post(`/api/retroalimentacion/${ajena.id_respuesta}/enterado`)).status()).toBe(409);
 });
+
+test('CP-M05-09 cuando el supervisor avanza un caso mayorista, la gerencia recibe el aviso por correo y en la aplicación', async () => {
+  const caso = await crearCaso({ cliente: mayorista, calificacion: 2 });
+  const { rows: [g] } = await bd.consulta('SELECT id_responsable FROM caso_servicio WHERE id_caso = $1', [caso.id]);
+  expect((await supervisor.request.post(`/api/casos/${caso.id}/contacto`, { data: { nota: 'Llamé al cliente y ofrecí envío sin costo.' } })).status()).toBe(200);
+  expect((await supervisor.request.post(`/api/casos/${caso.id}/actuaciones`, { data: { descripcion: 'Coaching al vendedor sobre existencias.' } })).status()).toBe(201);
+  // La gerente (responsable) recibe ambos avances; quien los registró no se avisa a sí mismo.
+  await expect.poll(async () => (await notificaciones(caso.id)).filter((n) => n.tipo === 'caso_actualizado' && n.usuario === g.id_responsable).map((n) => n.canal).sort())
+    .toEqual(['aplicacion', 'aplicacion', 'correo', 'correo']);
+  expect((await notificaciones(caso.id)).some((n) => n.tipo === 'caso_actualizado' && n.usuario === idSupervisor)).toBe(false);
+});

@@ -90,7 +90,8 @@
   const formatoHora = new Intl.DateTimeFormat('es-GT', { timeZone: 'America/Guatemala', hour: 'numeric', minute: '2-digit', hour12: true });
   const moneda = (n) => formatoMoneda.format(Number(n) || 0);
   const fecha = (iso) => formatoDia.format(new Date(iso));
-  const hora = (iso) => formatoHora.format(new Date(iso));
+  // Espacios sin corte: "11:29 a. m." nunca se parte en dos líneas.
+  const hora = (iso) => formatoHora.format(new Date(iso)).replace(/\s/g, '\u00a0');
   // "Cristian Josué López León" → "Cristian López"
   const nombreCorto = (completo = '') => { const p = completo.split(' '); return p.length >= 4 ? `${p[0]} ${p[2]}` : completo; };
   const fechaHora = (iso) => formatoFecha.format(new Date(iso));

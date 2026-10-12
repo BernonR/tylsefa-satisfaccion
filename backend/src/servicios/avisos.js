@@ -11,7 +11,7 @@ const casos = require('./casos');
 const fechaHora = (f) => new Intl.DateTimeFormat('es-GT', { timeZone: 'America/Guatemala', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(f));
 const moneda = (n) => new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' }).format(n);
 const primerNombre = (n) => String(n || '').split(' ')[0];
-const enlaceCasos = () => `${config.urlAplicacion}/casos.html`;
+const enlaceCasos = (id) => `${config.urlAplicacion}/casos.html${id ? `?caso=${id}` : ''}`;
 const ESTRELLAS = { 1: 'Muy insatisfecho', 2: 'Insatisfecho', 3: 'Neutral', 4: 'Satisfecho', 5: 'Muy satisfecho' };
 const plazoTexto = (min) => (min < 60 ? `${min} minutos hábiles` : `${min / 60} horas hábiles`);
 
@@ -61,7 +61,7 @@ async function casoNuevo(idCaso) {
             ? `Un cliente calificó la atención como insatisfactoria. Tiene ${plazoTexto(c.minutosContacto)} para el primer contacto.`
             : `Recibe esta copia para dar seguimiento. El responsable del caso es ${c.responsable}.`],
           filas: filasCaso(c),
-          boton: { texto: 'Abrir el caso', url: enlaceCasos() },
+          boton: { texto: 'Abrir el caso', url: enlaceCasos(c.id) },
         }),
       },
     });
@@ -102,7 +102,42 @@ async function casoEscalado(idCaso) {
           saludo: `Hola, ${primerNombre(nombre)}:`,
           parrafos: [`Venció el plazo de ${plazoTexto(c.minutosContacto)} para el primer contacto y nadie lo registró. Contacte al cliente lo antes posible.`],
           filas: filasCaso(c),
-          boton: { texto: 'Abrir el caso', url: enlaceCasos() },
+          boton: { texto: 'Abrir el caso', url: enlaceCasos(c.id) },
+        }),
+      },
+    });
+  }
+}
+
+// Avance del caso (primer contacto, actuación o cierre): avisa por correo y en la aplicación a
+// los demás involucrados (responsable y copia), menos a quien lo registró. Así la gerencia, que
+// cierra los casos mayoristas, se entera de lo que hace el supervisor sin entrar al sistema.
+const QUE = { contacto: 'registró el primer contacto', actuacion: 'agregó una actuación', cierre: 'cerró el caso' };
+async function casoActualizado(idCaso, idActor, accion, texto) {
+  const c = await casos.obtener(idCaso);
+  if (!c) return;
+  const { rows: [actor] } = await consulta("SELECT nombres || ' ' || apellidos AS nombre FROM usuario WHERE id_usuario = $1", [idActor]);
+  const destinos = [[c.idResponsable, c.correoResponsable, c.responsable], [c.idCopia, c.correoCopia, c.copia]]
+    .filter(([id], i, todos) => id && id !== idActor && todos.findIndex(([otro]) => otro === id) === i);
+  for (const [id, para, nombre] of destinos) {
+    const tipo = accion === 'cierre' ? 'caso_cerrado_interno' : 'caso_actualizado';
+    await registrar({ idCaso, idUsuario: id, canal: 'aplicacion', tipo });
+    const puedeCerrar = c.segmento === 'mayorista' && accion !== 'cierre' && id === c.idResponsable;
+    await porCorreo({
+      idCaso, idUsuario: id, para, tipo,
+      mensaje: {
+        asunto: `${c.numero}: ${actor?.nombre || 'Se'} ${QUE[accion]}`,
+        ...correo.plantilla({
+          titulo: `Avance del caso ${c.numero}`,
+          saludo: `Hola, ${primerNombre(nombre)}:`,
+          parrafos: [
+            `${actor?.nombre || 'Un usuario'} ${QUE[accion]}:`,
+            texto,
+            ...(puedeCerrar ? ['Este caso es de un cliente mayorista: el cierre lo autoriza la gerencia desde el sistema.'] : []),
+          ],
+          filas: [['Cliente', `${c.cliente} (${c.codigoCliente}) · ${c.segmento === 'mayorista' ? 'Mayorista' : 'Minorista'}`],
+            ['Calificación', `${c.calificacion} · ${ESTRELLAS[c.calificacion]}`], ['Estado', { abierto: 'Sin contacto', en_seguimiento: 'En seguimiento', escalado: 'Escalado', cerrado: 'Cerrado' }[c.estado]]],
+          boton: { texto: 'Abrir el caso', url: `${config.urlAplicacion}/casos.html?caso=${c.id}` },
         }),
       },
     });
@@ -189,4 +224,4 @@ function enSegundoPlano(promesa) {
   promesa.catch((error) => console.error('Aviso no enviado:', error.message));
 }
 
-module.exports = { casoNuevo, casoEscalado, casoCerrado, respuestaAlVendedor, delUsuario, marcarLeidos, enSegundoPlano };
+module.exports = { casoNuevo, casoEscalado, casoCerrado, casoActualizado, respuestaAlVendedor, delUsuario, marcarLeidos, enSegundoPlano };

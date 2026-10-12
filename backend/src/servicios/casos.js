@@ -139,7 +139,9 @@ async function escalarVencidos(ahora = new Date()) {
       UPDATE caso_servicio cs SET estado = 'escalado', fecha_hora_escalamiento = now(),
              id_usuario_copia = CASE WHEN $2 = 'minorista'
                THEN coalesce((SELECT u.id_usuario FROM usuario u JOIN perfil p ON p.id_perfil = u.id_perfil
-                               WHERE p.nombre = 'gerente' AND u.activo ORDER BY u.id_usuario LIMIT 1), cs.id_usuario_copia)
+                               WHERE p.nombre = 'gerente' AND u.activo
+       -- Las cuentas de las pruebas automáticas van al final: el caso real llega a la gerente real.
+       ORDER BY (u.correo LIKE '%@pruebas.tylsefa.com'), u.id_usuario LIMIT 1), cs.id_usuario_copia)
                ELSE cs.id_usuario_copia END
        WHERE cs.id_caso = $1 AND cs.estado = 'abierto' AND cs.fecha_hora_escalamiento IS NULL RETURNING cs.id_caso`,
     [caso.id, caso.segmento]);
