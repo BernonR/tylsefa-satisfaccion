@@ -8,6 +8,7 @@
     "servidor": "npm start --prefix backend",
     "pruebas": "npm run prueba:unidad --prefix backend && playwright test",
     "reporte": "playwright show-report",
+    "presentacion": "node pruebas/presentacion.js",
     "pruebas:interfaz": "playwright test"
   },
   "devDependencies": {

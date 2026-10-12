@@ -1,6 +1,10 @@
 // Configuración de las pruebas con Playwright.
 const { defineConfig, devices } = require('@playwright/test');
 
+// Modo presentación (npm run presentacion): navegador visible y cada acción más lenta,
+// para mostrar las pruebas con calma al compartir pantalla.
+const presentacion = Boolean(process.env.PRESENTACION);
+
 module.exports = defineConfig({
   testDir: './pruebas',
   testMatch: '**/*.spec.js',
@@ -9,6 +13,7 @@ module.exports = defineConfig({
   workers: 1,
   fullyParallel: false,
   retries: 0,
+  timeout: presentacion ? 120000 : 30000,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: 'http://localhost:3000',
@@ -16,6 +21,7 @@ module.exports = defineConfig({
     timezoneId: 'America/Guatemala',
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
+    launchOptions: { slowMo: presentacion ? 800 : 0 },
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

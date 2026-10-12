@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogos | Tylsefa</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="ty-pendiente" data-pagina="catalogos">
+  <main class="ty-principal">
+    <header class="ty-encabezado">
+      <div>
+        <h1 class="ty-titulo-grande mb-1">Catálogos</h1>
+        <p class="ty-secundario mb-0">Empresas cliente y personal de la sucursal.</p>
+      </div>
+      <button type="button" class="btn btn-ty-primario" id="nueva-empresa" hidden><i class="bi bi-building-add" aria-hidden="true"></i>Nueva empresa</button>
+    </header>
+
+    <div class="ty-segmentos mb-4" role="tablist" aria-label="Catálogo">
+      <input type="radio" class="btn-check" name="catalogo" id="ver-empresas" value="empresas" checked><label class="btn" for="ver-empresas">Empresas cliente</label>
+      <input type="radio" class="btn-check" name="catalogo" id="ver-personal" value="personal"><label class="btn" for="ver-personal">Personal</label>
+    </div>
+
+    <section id="seccion-empresas" aria-label="Empresas cliente">
+      <div class="ty-filtros" role="search">
+        <div class="buscar">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <label class="visually-hidden" for="buscar">Buscar empresa</label>
+          <input type="search" class="form-control" id="buscar" placeholder="Buscar por nombre, código o contacto" autocomplete="off">
+        </div>
+        <label class="visually-hidden" for="filtro-segmento">Segmento</label>
+        <select class="form-select" id="filtro-segmento">
+          <option value="">Todos los segmentos</option><option value="minorista">Minoristas</option><option value="mayorista">Mayoristas</option>
+        </select>
+        <label class="visually-hidden" for="filtro-estado">Estado</label>
+        <select class="form-select" id="filtro-estado" hidden>
+          <option value="activos">Activas</option><option value="inactivos">Inactivas</option><option value="todos">Todas</option>
+        </select>
+      </div>
+      <p class="ty-resumen" id="resumen-empresas" aria-live="polite"></p>
+      <div class="ty-tabla-envoltura">
+        <table class="ty-tabla" id="tabla-empresas">
+          <thead><tr><th scope="col">Código</th><th scope="col">Empresa</th><th scope="col">Segmento</th><th scope="col">Correo empresarial</th><th scope="col">Estado</th><th scope="col" class="acciones"><span class="visually-hidden">Acciones</span></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="seccion-personal" aria-label="Personal" hidden>
+      <p class="ty-resumen" id="resumen-personal" aria-live="polite"></p>
+      <div class="ty-tabla-envoltura">
+        <table class="ty-tabla" id="tabla-personal">
+          <thead><tr><th scope="col">Nombre</th><th scope="col">Perfil</th><th scope="col">Supervisor a cargo</th><th scope="col">Correo</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Alta y edición de empresa cliente -->
+  <div class="modal fade ty-dialogo" id="dialogo-empresa" tabindex="-1" aria-labelledby="dialogo-empresa-titulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" novalidate>
+        <div class="modal-header">
+          <h2 class="modal-title" id="dialogo-empresa-titulo">Nueva empresa cliente</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p class="ty-leyenda" id="empresa-codigo">El código se asigna al guardar.</p>
+          <div class="row g-3">
+            <div class="col-12"><label class="form-label" for="e-nombre">Nombre o razón social</label><input class="form-control" id="e-nombre" name="nombre" maxlength="120" required autocomplete="off"></div>
+            <div class="col-sm-6"><label class="form-label" for="e-segmento">Segmento</label>
+              <select class="form-select" id="e-segmento" name="segmento" required aria-describedby="e-segmento-ayuda"><option value="">Elija…</option><option value="minorista">Minorista</option><option value="mayorista">Mayorista</option></select>
+              <div class="form-text" id="e-segmento-ayuda">Define quién atiende sus casos y en qué plazo.</div></div>
+            <div class="col-sm-6"><label class="form-label" for="e-nit">NIT <span class="ty-leyenda">(opcional)</span></label><input class="form-control" id="e-nit" name="nit" maxlength="20" autocomplete="off" placeholder="1234567-8"></div>
+            <div class="col-12"><label class="form-label" for="e-correo">Correo empresarial</label><input class="form-control" id="e-correo" name="correo" type="email" maxlength="120" required autocomplete="off" aria-describedby="e-correo-ayuda">
+              <div class="form-text" id="e-correo-ayuda">Aquí recibe el número de su caso cuando califica mal la atención.</div></div>
+            <div class="col-12"><label class="form-label" for="e-contacto">Persona de contacto <span class="ty-leyenda">(opcional)</span></label><input class="form-control" id="e-contacto" name="contacto" maxlength="80" autocomplete="off"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ty-secundario" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-ty-primario" id="guardar-empresa">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sistema.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/catalogos.js"></script>
+</body>
+</html>

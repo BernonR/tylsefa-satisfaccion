@@ -1,0 +1,65 @@
+{
+ "_nota": "Personal de la sucursal Tulam Tzu con datos modificados entregados por Tylsefa. Gerente, supervisores y dos vendedores tienen bandeja en Zoho Mail (@tylsefa.com); la tercera vendedora usa un alias del Gmail de Bernon. El administrador se crea aparte con npm run crear-admin.",
+ "personal": [
+  {
+   "clave": "gerente",
+   "perfil": "gerente",
+   "nombres": "Aura Lucrecia",
+   "apellidos": "Chajón Monroy",
+   "correo": "lucrecia.chajon@tylsefa.com",
+   "correos_anteriores": [
+    "bernonromero+gerente@gmail.com"
+   ]
+  },
+  {
+   "clave": "supervisor1",
+   "perfil": "supervisor",
+   "nombres": "Luis Antonio",
+   "apellidos": "Alonso Ramírez",
+   "correo": "luis.alonso@tylsefa.com",
+   "correos_anteriores": [
+    "bernonromero+supervisor1@gmail.com"
+   ]
+  },
+  {
+   "clave": "supervisor2",
+   "perfil": "supervisor",
+   "nombres": "José Israel",
+   "apellidos": "Méndez Molina",
+   "correo": "jose.mendez@tylsefa.com",
+   "correos_anteriores": [
+    "bernonromero+supervisor2@gmail.com"
+   ]
+  },
+  {
+   "clave": "vendedor1",
+   "perfil": "vendedor",
+   "nombres": "Cristian Josué",
+   "apellidos": "López León",
+   "correo": "cristian.lopez@tylsefa.com",
+   "supervisor": "supervisor1",
+   "correos_anteriores": [
+    "bernonromero+vendedor1@gmail.com"
+   ]
+  },
+  {
+   "clave": "vendedor2",
+   "perfil": "vendedor",
+   "nombres": "Luis Carlos",
+   "apellidos": "Vásquez Trujillo",
+   "correo": "luis.vasquez@tylsefa.com",
+   "supervisor": "supervisor1",
+   "correos_anteriores": [
+    "bernonromero+vendedor2@gmail.com"
+   ]
+  },
+  {
+   "clave": "vendedor3",
+   "perfil": "vendedor",
+   "nombres": "Alejandra Andrea",
+   "apellidos": "Alfaro",
+   "correo": "bernonromero+vendedor3@gmail.com",
+   "supervisor": "supervisor2"
+  }
+ ]
+}

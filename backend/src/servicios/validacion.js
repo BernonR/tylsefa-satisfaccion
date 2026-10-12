@@ -1,0 +1,71 @@
+'use strict';
+
+// Reglas de validación de los catálogos (M02). Se usan en el servidor, que es quien decide;
+// la pantalla repite las mismas reglas solo para avisar antes de enviar.
+
+const { revisarPolitica } = require('../seguridad/contrasenas');
+
+const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const NIT = /^(\d{1,12}-?[\dkK]|CF)$/;
+const PERFILES = ['vendedor', 'supervisor', 'gerente', 'administrador'];
+const SEGMENTOS = ['minorista', 'mayorista'];
+
+const texto = (v) => (typeof v === 'string' ? v.trim().replace(/\s+/g, ' ') : '');
+
+function requerido(errores, campo, valor, max, etiqueta) {
+  if (!valor) errores[campo] = `Escriba ${etiqueta}.`;
+  else if (valor.length > max) errores[campo] = `Use como máximo ${max} caracteres.`;
+}
+
+// Usuario del personal. "nuevo" exige la contraseña temporal.
+function validarUsuario(datos = {}, { nuevo = false } = {}) {
+  const errores = {};
+  const limpio = {
+    nombres: texto(datos.nombres),
+    apellidos: texto(datos.apellidos),
+    correo: texto(datos.correo).toLowerCase(),
+    perfil: texto(datos.perfil),
+    idSupervisor: datos.idSupervisor ? Number(datos.idSupervisor) : null,
+  };
+  requerido(errores, 'nombres', limpio.nombres, 60, 'los nombres');
+  requerido(errores, 'apellidos', limpio.apellidos, 60, 'los apellidos');
+  if (!CORREO.test(limpio.correo) || limpio.correo.length > 120) errores.correo = 'Escriba un correo válido, por ejemplo nombre@tylsefa.com.';
+  if (!PERFILES.includes(limpio.perfil)) errores.perfil = 'Elija el perfil.';
+  if (limpio.perfil === 'vendedor') {
+    if (!Number.isInteger(limpio.idSupervisor) || limpio.idSupervisor <= 0) errores.idSupervisor = 'Elija el supervisor a cargo del vendedor.';
+  } else {
+    limpio.idSupervisor = null; // solo los vendedores tienen supervisor
+  }
+  if (nuevo) {
+    const faltas = revisarPolitica(datos.clave);
+    if (faltas.length) errores.clave = `La contraseña necesita ${faltas.join(', ')}.`;
+    limpio.clave = typeof datos.clave === 'string' ? datos.clave : '';
+  }
+  return { errores, limpio, valido: Object.keys(errores).length === 0 };
+}
+
+// Empresa cliente. El código lo genera el sistema.
+function validarCliente(datos = {}) {
+  const errores = {};
+  const limpio = {
+    nombre: texto(datos.nombre),
+    segmento: texto(datos.segmento),
+    correo: texto(datos.correo).toLowerCase(),
+    contacto: texto(datos.contacto) || null,
+    nit: texto(datos.nit).toUpperCase() || null,
+  };
+  requerido(errores, 'nombre', limpio.nombre, 120, 'el nombre o razón social');
+  if (!SEGMENTOS.includes(limpio.segmento)) errores.segmento = 'Elija si es minorista o mayorista.';
+  if (!CORREO.test(limpio.correo) || limpio.correo.length > 120) errores.correo = 'Escriba el correo empresarial donde recibirá su número de caso.';
+  if (limpio.contacto && limpio.contacto.length > 80) errores.contacto = 'Use como máximo 80 caracteres.';
+  if (limpio.nit && !NIT.test(limpio.nit)) errores.nit = 'Escriba el NIT sin espacios, por ejemplo 1234567-8, o CF.';
+  return { errores, limpio, valido: Object.keys(errores).length === 0 };
+}
+
+// Identificador numérico de la dirección (/api/usuarios/7).
+function identificador(valor) {
+  const n = Number(valor);
+  return Number.isInteger(n) && n > 0 && n < 2 ** 31 ? n : null;
+}
+
+module.exports = { validarUsuario, validarCliente, identificador, PERFILES, SEGMENTOS };
