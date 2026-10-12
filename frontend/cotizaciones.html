@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cotizaciones | Tylsefa</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="ty-pendiente" data-pagina="cotizaciones">
+  <main class="ty-principal">
+    <header class="ty-encabezado">
+      <div>
+        <h1 class="ty-titulo-grande mb-1" id="titulo">Cotizaciones</h1>
+        <p class="ty-secundario mb-0" id="subtitulo">Cotizaciones registradas para que el cliente califique la atención en la terminal.</p>
+      </div>
+      <button type="button" class="btn btn-ty-primario" id="nueva-cotizacion" hidden><i class="bi bi-plus-lg" aria-hidden="true"></i>Registrar cotización</button>
+    </header>
+
+    <div class="ty-contadores" id="contadores" aria-live="polite">
+      <div class="ty-contador"><div class="etiqueta">Pendientes de calificar</div><div class="valor" id="k-pendientes">—</div></div>
+      <div class="ty-contador"><div class="etiqueta">Calificadas</div><div class="valor" id="k-respondidas">—</div></div>
+      <div class="ty-contador"><div class="etiqueta">Monto cotizado</div><div class="valor ty-cifra" id="k-monto">—</div></div>
+    </div>
+
+    <div class="ty-filtros" role="search">
+      <div class="buscar">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="visually-hidden" for="buscar">Buscar cotización</label>
+        <input type="search" class="form-control" id="buscar" placeholder="Buscar por número, cliente o vendedor" autocomplete="off">
+      </div>
+      <label class="visually-hidden" for="filtro-estado">Estado</label>
+      <select class="form-select" id="filtro-estado">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendientes</option>
+        <option value="respondida">Calificadas</option>
+        <option value="vencida">Vencidas</option>
+        <option value="anulada">Anuladas</option>
+      </select>
+      <label class="visually-hidden" for="filtro-dias">Periodo</label>
+      <select class="form-select" id="filtro-dias">
+        <option value="1">Hoy</option>
+        <option value="7">Últimos 7 días</option>
+        <option value="30" selected>Últimos 30 días</option>
+        <option value="90">Últimos 90 días</option>
+        <option value="0">Todo</option>
+      </select>
+    </div>
+
+    <p class="ty-resumen" id="resumen" aria-live="polite"></p>
+    <div class="ty-tabla-envoltura">
+      <table class="ty-tabla" id="tabla-cotizaciones">
+        <thead><tr><th scope="col">Número</th><th scope="col">Fecha</th><th scope="col">Empresa cliente</th><th scope="col">Vendedor</th><th scope="col" class="num">Monto</th><th scope="col">Estado</th><th scope="col" class="acciones"><span class="visually-hidden">Acciones</span></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Registro y corrección -->
+  <div class="modal fade ty-dialogo" id="dialogo-cotizacion" tabindex="-1" aria-labelledby="dialogo-cotizacion-titulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" novalidate>
+        <div class="modal-header">
+          <h2 class="modal-title" id="dialogo-cotizacion-titulo">Registrar cotización</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-sm-6"><label class="form-label" for="c-numero">Número de cotización</label>
+              <div class="ty-prefijo"><span class="prefijo" aria-hidden="true">COT-</span>
+                <input class="form-control ty-cifra" id="c-numero" name="numero" inputmode="numeric" maxlength="6" placeholder="004517" autocomplete="off" aria-describedby="c-numero-ayuda" required></div>
+              <div class="form-text" id="c-numero-ayuda">Los 6 dígitos que aparecen en la cotización entregada.</div></div>
+            <div class="col-sm-6"><label class="form-label" for="c-monto">Monto cotizado</label>
+              <div class="ty-prefijo"><span class="prefijo" aria-hidden="true">Q</span>
+                <input class="form-control ty-cifra" id="c-monto" name="monto" inputmode="decimal" placeholder="12,480.00" autocomplete="off" required></div></div>
+            <div class="col-12"><label class="form-label" for="c-vendedor">Vendedor que atendió</label>
+              <select class="form-select" id="c-vendedor" name="idVendedor" required><option value="">Elija…</option></select></div>
+            <div class="col-12"><label class="form-label" for="c-filtro-cliente">Empresa cliente</label>
+              <input class="form-control mb-2" id="c-filtro-cliente" type="search" placeholder="Escriba para buscar por nombre o código" autocomplete="off">
+              <select class="form-select" id="c-cliente" name="idCliente" size="5" required aria-label="Empresa cliente" aria-describedby="c-cliente-ayuda"></select>
+              <div class="form-text" id="c-cliente-ayuda">El segmento define quién atiende el caso si el cliente califica mal.</div></div>
+            <div class="col-12"><div class="form-check">
+              <input class="form-check-input" type="checkbox" id="c-prueba" name="esPrueba">
+              <label class="form-check-label" for="c-prueba">Cotización de prueba (capacitación): no cuenta en indicadores ni reportes</label>
+            </div></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ty-secundario" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-ty-primario" id="guardar-cotizacion">Registrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Anulación -->
+  <div class="modal fade ty-dialogo" id="dialogo-anular" tabindex="-1" aria-labelledby="dialogo-anular-titulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" novalidate>
+        <div class="modal-header">
+          <h2 class="modal-title" id="dialogo-anular-titulo">Anular cotización</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p class="ty-secundario" id="anular-texto"></p>
+          <label class="form-label" for="a-motivo">Motivo de la anulación</label>
+          <textarea class="form-control" id="a-motivo" name="motivo" rows="3" maxlength="200" required></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ty-secundario" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-ty-peligro" id="confirmar-anular">Anular cotización</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sistema.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/cotizaciones.js"></script>
+</body>
+</html>

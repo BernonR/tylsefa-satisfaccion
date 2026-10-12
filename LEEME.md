@@ -30,7 +30,7 @@ Sistema web para la medición de la satisfacción del cliente y la gestión de c
 |---|---|
 | M01 Acceso y seguridad | Inicio y cierre de sesión, menú según el perfil, cierre por inactividad, bitácora |
 | M02 Catálogos | Usuarios (alta, edición, contraseña, desactivación), empresas cliente con código automático, personal en consulta, cambio de contraseña propio |
-| M03 Cotizaciones | Pendiente |
+| M03 Cotizaciones | Registro por el supervisor (COT- y 6 dígitos, vigencia de 7 días), corrección mientras está pendiente, anulación con motivo, marca de prueba; el vendedor consulta solo las suyas |
 | M04 Terminal de autoservicio | Pendiente |
 | M05 Casos y notificaciones | Pendiente |
 | M06 Indicadores y reportes | Pendiente |

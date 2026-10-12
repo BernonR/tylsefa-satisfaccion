@@ -18,7 +18,10 @@
       ayuda.className = 'invalid-feedback';
       ayuda.dataset.servidor = '';
       ayuda.textContent = mensaje;
-      control.insertAdjacentElement('afterend', ayuda);
+      ayuda.style.display = 'block';
+      // En campos con prefijo (COT-, Q) o con botón de ver contraseña, el mensaje va debajo del grupo.
+      const grupo = control.closest('.ty-prefijo, .ty-campo-clave') || control;
+      grupo.insertAdjacentElement('afterend', ayuda);
       primero ??= control;
     }
     primero?.focus();
@@ -77,5 +80,17 @@
     return (...args) => { clearTimeout(reloj); reloj = setTimeout(() => fn(...args), ms); };
   }
 
-  window.UI = { escapar, mostrarErrores, limpiarErrores, datos, confirmar, ocupado, demorar };
+  // Formatos de Guatemala: quetzales y fecha/hora local.
+  const formatoMoneda = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
+  const formatoFecha = new Intl.DateTimeFormat('es-GT', { timeZone: 'America/Guatemala', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+  const formatoDia = new Intl.DateTimeFormat('es-GT', { timeZone: 'America/Guatemala', day: '2-digit', month: '2-digit', year: 'numeric' });
+  const formatoHora = new Intl.DateTimeFormat('es-GT', { timeZone: 'America/Guatemala', hour: 'numeric', minute: '2-digit', hour12: true });
+  const moneda = (n) => formatoMoneda.format(Number(n) || 0);
+  const fecha = (iso) => formatoDia.format(new Date(iso));
+  const hora = (iso) => formatoHora.format(new Date(iso));
+  // "Cristian Josué López León" → "Cristian López"
+  const nombreCorto = (completo = '') => { const p = completo.split(' '); return p.length >= 4 ? `${p[0]} ${p[2]}` : completo; };
+  const fechaHora = (iso) => formatoFecha.format(new Date(iso));
+
+  window.UI = { escapar, mostrarErrores, limpiarErrores, datos, confirmar, ocupado, demorar, moneda, fechaHora, fecha, hora, nombreCorto };
 })();

@@ -62,10 +62,43 @@ function validarCliente(datos = {}) {
   return { errores, limpio, valido: Object.keys(errores).length === 0 };
 }
 
+// Cotización (M03). El número llega como los 6 dígitos o completo (COT-004517).
+const NUMERO_COTIZACION = /^COT-\d{6}$/;
+function numeroCotizacion(valor) {
+  const t = texto(String(valor ?? '')).toUpperCase().replace(/\s/g, '');
+  if (/^\d{6}$/.test(t)) return `COT-${t}`;
+  return t;
+}
+
+function validarCotizacion(datos = {}) {
+  const errores = {};
+  const monto = Number(String(datos.monto ?? '').replace(/[Q,\s]/g, ''));
+  const limpio = {
+    numero: numeroCotizacion(datos.numero),
+    monto: Math.round(monto * 100) / 100,
+    idVendedor: Number(datos.idVendedor),
+    idCliente: Number(datos.idCliente),
+    esPrueba: datos.esPrueba === true || datos.esPrueba === 'true' || datos.esPrueba === 'on',
+  };
+  if (!NUMERO_COTIZACION.test(limpio.numero)) errores.numero = 'Escriba los 6 dígitos del número de cotización, por ejemplo 004517.';
+  if (!Number.isFinite(monto) || monto <= 0) errores.monto = 'Escriba el monto cotizado; debe ser mayor que cero.';
+  else if (monto >= 1e10) errores.monto = 'El monto es demasiado grande.';
+  if (!Number.isInteger(limpio.idVendedor) || limpio.idVendedor <= 0) errores.idVendedor = 'Elija el vendedor que atendió.';
+  if (!Number.isInteger(limpio.idCliente) || limpio.idCliente <= 0) errores.idCliente = 'Elija la empresa cliente.';
+  return { errores, limpio, valido: Object.keys(errores).length === 0 };
+}
+
+function validarMotivo(valor) {
+  const motivo = texto(valor);
+  if (motivo.length < 5) return { error: 'Explique el motivo de la anulación (al menos 5 caracteres).' };
+  if (motivo.length > 200) return { error: 'Use como máximo 200 caracteres.' };
+  return { motivo };
+}
+
 // Identificador numérico de la dirección (/api/usuarios/7).
 function identificador(valor) {
   const n = Number(valor);
   return Number.isInteger(n) && n > 0 && n < 2 ** 31 ? n : null;
 }
 
-module.exports = { validarUsuario, validarCliente, identificador, PERFILES, SEGMENTOS };
+module.exports = { validarUsuario, validarCliente, validarCotizacion, validarMotivo, numeroCotizacion, identificador, PERFILES, SEGMENTOS };
