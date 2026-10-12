@@ -24,6 +24,9 @@
     { id: 'usuarios', texto: 'Usuarios', icono: 'bi-people', href: 'usuarios.html', listo: true,
       permisos: ['usuarios.administrar'],
       descripcion: 'Cuentas de acceso y perfiles del personal.' },
+    { id: 'terminal', texto: 'Terminal', icono: 'bi-tablet', href: 'terminal-activar.html', listo: true,
+      permisos: ['cotizacion.registrar', 'usuarios.administrar'],
+      descripcion: 'Activar la tableta del mostrador para la encuesta.' },
   ];
   const PERFILES = { vendedor: 'Vendedor', supervisor: 'Supervisor', gerente: 'Gerente', administrador: 'Administrador' };
 

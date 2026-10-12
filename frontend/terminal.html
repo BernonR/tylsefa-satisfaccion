@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Terminal de autoservicio | Tylsefa</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0a0f14">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="ty-cuerpo-terminal">
+  <div class="ty-escena">
+    <span class="luz luz-1" aria-hidden="true"></span><span class="luz luz-2" aria-hidden="true"></span>
+    <!-- Cruz ansada del logo de Tylsefa -->
+    <svg class="ansada" viewBox="0 0 240 380" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="trazo" x1="30" y1="20" x2="210" y2="360" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#9fe6ff"/><stop offset="0.38" stop-color="#1194cb"/><stop offset="0.78" stop-color="#0a4f86"/><stop offset="1" stop-color="#06263f"/>
+        </linearGradient>
+        <linearGradient id="brillo" x1="60" y1="20" x2="150" y2="200" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#ffffff" stop-opacity="0.85"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g stroke-linecap="round" stroke-linejoin="round">
+        <path d="M120 178 C70 132 58 34 120 34 C182 34 170 132 120 178 Z M34 196 H206 M120 178 V350" stroke="url(#trazo)" stroke-width="34"/>
+        <path d="M104 150 C76 116 72 50 116 46" stroke="url(#brillo)" stroke-width="5"/>
+        <path d="M40 188 H112" stroke="url(#brillo)" stroke-width="4" opacity="0.7"/>
+      </g>
+    </svg>
+
+    <main class="ty-terminal" id="terminal" data-paso="cargando">
+      <section class="marca">
+        <img class="logo" src="img/logo-tylsefa.png" alt="Tylsefa" width="698" height="283">
+        <h1 id="titulo">Cuéntenos cómo le atendimos</h1>
+        <p id="bajada">Ingrese el número que aparece en su cotización. Le tomará menos de un minuto.</p>
+        <ol class="ty-pasos" aria-label="Pasos de la encuesta">
+          <li data-etapa="1" class="actual" aria-current="step"><span class="n">1</span>Número</li>
+          <li data-etapa="2"><span class="n">2</span>Calificación</li>
+          <li data-etapa="3"><span class="n">3</span>Listo</li>
+        </ol>
+      </section>
+
+      <section class="ty-vidrio tarjeta" aria-live="polite">
+        <!-- Cargando -->
+        <div class="paso" data-paso="cargando">
+          <div class="ty-vacio"><span class="spinner-border text-light" role="status"><span class="visually-hidden">Cargando</span></span></div>
+        </div>
+
+        <!-- Tableta sin activar -->
+        <div class="paso" data-paso="sin-activar" hidden>
+          <div class="ty-vacio">
+            <i class="bi bi-tablet" aria-hidden="true"></i>
+            <h2 class="ty-titulo mt-2 mb-2">Terminal sin activar</h2>
+            <p class="ty-secundario">Un supervisor debe activar esta tableta: inicie sesión y abra <strong>Terminal</strong> en el menú.</p>
+            <a class="btn btn-ty-secundario mt-2" href="index.html"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>Iniciar sesión del personal</a>
+          </div>
+        </div>
+
+        <!-- 1. Número de cotización -->
+        <form class="paso" data-paso="numero" id="form-numero" hidden novalidate>
+          <label class="etiqueta" for="visor">Número de cotización</label>
+          <div class="visor" id="visor-caja">
+            <span class="prefijo">COT-</span>
+            <input id="visor" name="numero" inputmode="none" autocomplete="off" maxlength="6" placeholder="______" aria-describedby="mensaje-numero" readonly>
+          </div>
+          <div class="teclado" id="teclado" aria-label="Teclado numérico">
+            <button type="button" class="tecla" data-d="1">1</button>
+            <button type="button" class="tecla" data-d="2">2</button>
+            <button type="button" class="tecla" data-d="3">3</button>
+            <button type="button" class="tecla" data-d="4">4</button>
+            <button type="button" class="tecla" data-d="5">5</button>
+            <button type="button" class="tecla" data-d="6">6</button>
+            <button type="button" class="tecla" data-d="7">7</button>
+            <button type="button" class="tecla" data-d="8">8</button>
+            <button type="button" class="tecla" data-d="9">9</button>
+            <button type="button" class="tecla secundaria" data-accion="limpiar">Limpiar</button>
+            <button type="button" class="tecla" data-d="0">0</button>
+            <button type="button" class="tecla secundaria" data-accion="borrar" aria-label="Borrar el último número"><i class="bi bi-backspace" aria-hidden="true"></i></button>
+          </div>
+          <button type="submit" class="btn btn-ty-primario btn-ty-grande w-100" id="continuar" disabled>Continuar<i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+          <p class="mensaje" id="mensaje-numero" role="alert">Si no tiene su cotización a la mano, solicítela al personal.</p>
+        </form>
+
+        <!-- 2. Calificación -->
+        <div class="paso" data-paso="calificacion" hidden>
+          <div class="ficha" id="ficha"></div>
+          <h2 class="pregunta" id="p-calificacion">¿Cómo calificaría la atención que recibió hoy?</h2>
+          <div class="ty-escala" role="group" aria-labelledby="p-calificacion" id="escala">
+            <button type="button" class="opcion" data-valor="1"><span class="cifra">1</span><span class="texto">Muy insatisfecho</span></button>
+            <button type="button" class="opcion" data-valor="2"><span class="cifra">2</span><span class="texto">Insatisfecho</span></button>
+            <button type="button" class="opcion" data-valor="3"><span class="cifra">3</span><span class="texto">Neutral</span></button>
+            <button type="button" class="opcion" data-valor="4"><span class="cifra">4</span><span class="texto">Satisfecho</span></button>
+            <button type="button" class="opcion" data-valor="5"><span class="cifra">5</span><span class="texto">Muy satisfecho</span></button>
+          </div>
+        </div>
+
+        <!-- 2b. ¿Compró? -->
+        <div class="paso" data-paso="compra" hidden>
+          <h2 class="pregunta" id="p-compra">¿Concretó su compra con esta cotización?</h2>
+          <div class="opciones-dobles" role="group" aria-labelledby="p-compra">
+            <button type="button" class="opcion grande" data-compro="si"><i class="bi bi-bag-check" aria-hidden="true"></i>Sí, compré</button>
+            <button type="button" class="opcion grande" data-compro="no"><i class="bi bi-bag-x" aria-hidden="true"></i>No compré</button>
+          </div>
+        </div>
+
+        <!-- 2c. Motivo de no compra -->
+        <div class="paso" data-paso="motivo" hidden>
+          <h2 class="pregunta" id="p-motivo">¿Cuál fue el motivo principal?</h2>
+          <div class="lista-motivos" role="group" aria-labelledby="p-motivo" id="motivos"></div>
+        </div>
+
+        <!-- 2d. Comentario opcional -->
+        <form class="paso" data-paso="comentario" id="form-comentario" hidden novalidate>
+          <h2 class="pregunta"><label for="comentario">¿Desea agregar un comentario?</label></h2>
+          <textarea class="form-control" id="comentario" name="comentario" rows="4" maxlength="500" placeholder="Opcional"></textarea>
+          <div class="contador ty-leyenda" id="contador-comentario">0 / 500</div>
+          <button type="submit" class="btn btn-ty-primario btn-ty-grande w-100" id="enviar">Enviar respuesta<i class="bi bi-send" aria-hidden="true"></i></button>
+        </form>
+
+        <!-- 3. Listo -->
+        <div class="paso" data-paso="listo" hidden>
+          <div class="listo">
+            <span class="sello"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+            <h2 class="ty-titulo">¡Gracias por su tiempo!</h2>
+            <p class="ty-secundario mb-0" id="texto-listo">Su opinión nos ayuda a atenderle mejor.</p>
+            <div class="caso" id="caso" hidden>
+              <span class="ty-leyenda">Número de su caso</span>
+              <strong class="numero" id="numero-caso"></strong>
+              <span class="ty-secundario" id="plazo-caso"></span>
+            </div>
+            <button type="button" class="btn btn-ty-secundario btn-ty-grande w-100" id="terminar">Terminar</button>
+            <p class="ty-leyenda mb-0" id="regreso"></p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <p class="ty-terminal-pendientes" id="pendientes" hidden></p>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/terminal.js"></script>
+</body>
+</html>

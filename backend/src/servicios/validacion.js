@@ -1,6 +1,6 @@
 'use strict';
 
-// Reglas de validación de los catálogos (M02). Se usan en el servidor, que es quien decide;
+// Reglas de validación de los catálogos (M02), las cotizaciones (M03) y la terminal (M04). Se usan en el servidor, que es quien decide;
 // la pantalla repite las mismas reglas solo para avisar antes de enviar.
 
 const { revisarPolitica } = require('../seguridad/contrasenas');
@@ -95,10 +95,35 @@ function validarMotivo(valor) {
   return { motivo };
 }
 
+// Respuesta de la terminal (M04). La compra es sí o no; el motivo solo se pide si no compró;
+// el comentario es opcional. La hora de captura la da la tableta (puede enviarse más tarde
+// si se cortó el internet, RNF05); si falta o no es creíble se usa la del servidor.
+const MAX_ATRASO_CAPTURA = 72 * 3600 * 1000;
+function validarRespuesta(datos = {}, ahora = Date.now()) {
+  const errores = {};
+  const compro = datos.compro === true ? true : datos.compro === false ? false : null;
+  const comentario = typeof datos.comentario === 'string' ? datos.comentario.trim().replace(/[ \t]+/g, ' ') : '';
+  const captura = new Date(datos.capturadaEn ?? NaN).getTime();
+  const limpio = {
+    numero: numeroCotizacion(datos.numero),
+    calificacion: Number(datos.calificacion),
+    compro,
+    idMotivo: compro === false ? Number(datos.idMotivo) : null,
+    comentario: comentario || null,
+    capturadaEn: new Date(Number.isFinite(captura) && captura <= ahora + 300000 && captura >= ahora - MAX_ATRASO_CAPTURA ? captura : ahora),
+  };
+  if (!NUMERO_COTIZACION.test(limpio.numero)) errores.numero = 'Número de cotización no válido.';
+  if (!Number.isInteger(limpio.calificacion) || limpio.calificacion < 1 || limpio.calificacion > 5) errores.calificacion = 'Elija una calificación del 1 al 5.';
+  if (compro === null) errores.compro = 'Indique si concretó la compra.';
+  if (compro === false && (!Number.isInteger(limpio.idMotivo) || limpio.idMotivo <= 0)) errores.idMotivo = 'Elija el motivo.';
+  if (comentario.length > 500) errores.comentario = 'Use como máximo 500 caracteres.';
+  return { errores, limpio, valido: Object.keys(errores).length === 0 };
+}
+
 // Identificador numérico de la dirección (/api/usuarios/7).
 function identificador(valor) {
   const n = Number(valor);
   return Number.isInteger(n) && n > 0 && n < 2 ** 31 ? n : null;
 }
 
-module.exports = { validarUsuario, validarCliente, validarCotizacion, validarMotivo, numeroCotizacion, identificador, PERFILES, SEGMENTOS };
+module.exports = { validarUsuario, validarCliente, validarCotizacion, validarMotivo, validarRespuesta, numeroCotizacion, identificador, PERFILES, SEGMENTOS };

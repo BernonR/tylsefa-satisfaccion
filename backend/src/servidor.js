@@ -35,6 +35,7 @@ app.use('/api/usuarios', require('./rutas/usuarios'));
 app.use('/api/clientes', require('./rutas/clientes'));
 app.use('/api/personal', require('./rutas/personal'));
 app.use('/api/cotizaciones', require('./rutas/cotizaciones'));
+app.use('/api/terminal', require('./rutas/terminal'));
 app.use('/api', (req, res) => res.status(404).json({ mensaje: 'Ruta no encontrada.' }));
 
 // En la computadora de desarrollo el mismo servidor entrega la interfaz.

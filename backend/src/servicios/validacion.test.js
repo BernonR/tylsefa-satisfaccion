@@ -2,7 +2,7 @@
 // Pruebas unitarias: reglas de los catálogos de personal y empresas cliente (M02).
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { validarUsuario, validarCliente, validarCotizacion, validarMotivo, identificador } = require('./validacion');
+const { validarUsuario, validarCliente, validarCotizacion, validarMotivo, validarRespuesta, identificador } = require('./validacion');
 
 test('CP-U11 un vendedor necesita supervisor; los demás perfiles no guardan supervisor', () => {
   const base = { nombres: 'Ana', apellidos: 'López', correo: 'ana@tylsefa.com' };
@@ -49,4 +49,23 @@ test('CP-U16 el monto debe ser mayor que cero y la anulación exige motivo', () 
   assert.ok(validarCotizacion({ ...base, monto: 'abc' }).errores.monto);
   assert.ok(validarMotivo('mal').error);
   assert.equal(validarMotivo('  Cliente pidió otra cotización  ').motivo, 'Cliente pidió otra cotización');
+});
+
+test('CP-U19 la respuesta de la terminal exige calificación de 1 a 5, compra y motivo si no compró', () => {
+  const ahora = Date.parse('2026-10-14T15:00:00Z');
+  const base = { numero: '004517', calificacion: 4, compro: true };
+  const bien = validarRespuesta(base, ahora);
+  assert.equal(bien.valido, true);
+  assert.equal(bien.limpio.idMotivo, null);
+  assert.equal(bien.limpio.comentario, null);
+  assert.ok(validarRespuesta({ ...base, calificacion: 6 }, ahora).errores.calificacion);
+  assert.ok(validarRespuesta({ ...base, calificacion: '3.5' }, ahora).errores.calificacion);
+  assert.ok(validarRespuesta({ ...base, compro: 'si' }, ahora).errores.compro);
+  assert.ok(validarRespuesta({ ...base, compro: false }, ahora).errores.idMotivo);
+  assert.equal(validarRespuesta({ ...base, compro: false, idMotivo: 2 }, ahora).valido, true);
+  assert.ok(validarRespuesta({ ...base, comentario: 'x'.repeat(501) }, ahora).errores.comentario);
+  // Hora de captura: se respeta si es creíble (envío diferido) y se corrige si no.
+  const hace1h = new Date(ahora - 3600000).toISOString();
+  assert.equal(validarRespuesta({ ...base, capturadaEn: hace1h }, ahora).limpio.capturadaEn.toISOString(), hace1h);
+  assert.equal(validarRespuesta({ ...base, capturadaEn: '2030-01-01T00:00:00Z' }, ahora).limpio.capturadaEn.getTime(), ahora);
 });

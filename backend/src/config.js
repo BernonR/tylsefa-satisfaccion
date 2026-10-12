@@ -35,4 +35,11 @@ module.exports = {
     nombreCookie: 'tylsefa_sesion',
     segura: produccion,
   },
+  // Tableta de la terminal de autoservicio (M04): queda autorizada 90 días tras activarla.
+  terminal: {
+    secreto,
+    dias: 90,
+    nombreCookie: 'tylsefa_terminal',
+    segura: produccion,
+  },
 };

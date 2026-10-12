@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Terminal | Tylsefa</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="ty-pendiente" data-pagina="terminal">
+  <main class="ty-principal">
+    <header class="ty-encabezado">
+      <div>
+        <h1 class="ty-titulo-grande mb-1">Terminal de autoservicio</h1>
+        <p class="ty-secundario mb-0">Active la tableta de la sucursal para que los clientes califiquen la atención.</p>
+      </div>
+    </header>
+
+    <section class="ty-tarjeta ty-activar" aria-labelledby="titulo-estado">
+      <div class="estado" id="estado-terminal">
+        <span class="icono"><i class="bi bi-tablet" aria-hidden="true"></i></span>
+        <div>
+          <h2 class="ty-subtitulo mb-1" id="titulo-estado">Comprobando este equipo…</h2>
+          <p class="ty-secundario mb-0" id="texto-estado"></p>
+        </div>
+      </div>
+
+      <ol class="ty-instrucciones" id="instrucciones" hidden>
+        <li>Abra esta pantalla <strong>en la tableta</strong> que quedará en el mostrador.</li>
+        <li>Presione <strong>Activar esta tableta</strong>. Su sesión se cierra sola y en la tableta queda únicamente la encuesta.</li>
+        <li>La tableta queda autorizada por 90 días. Desde otros equipos la encuesta no funciona.</li>
+      </ol>
+
+      <div class="acciones">
+        <button type="button" class="btn btn-ty-primario btn-ty-grande" id="activar" hidden><i class="bi bi-power" aria-hidden="true"></i>Activar esta tableta</button>
+        <a class="btn btn-ty-primario btn-ty-grande" id="abrir" href="terminal.html" hidden><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>Abrir la terminal</a>
+        <button type="button" class="btn btn-ty-peligro" id="desactivar" hidden><i class="bi bi-x-circle" aria-hidden="true"></i>Desactivar</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sistema.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/terminal-activar.js"></script>
+</body>
+</html>
