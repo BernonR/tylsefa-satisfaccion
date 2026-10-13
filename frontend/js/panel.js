@@ -15,7 +15,7 @@
     { id: 'retroalimentacion', texto: 'Retroalimentación', icono: 'bi-chat-square-text', href: 'retroalimentacion.html', listo: true,
       permisos: ['acuse.registrar'],
       descripcion: 'Leer y confirmar los comentarios de sus clientes.' },
-    { id: 'indicadores', texto: 'Indicadores', icono: 'bi-graph-up', href: 'indicadores.html', listo: false,
+    { id: 'indicadores', texto: 'Indicadores', icono: 'bi-graph-up', href: 'indicadores.html', listo: true,
       permisos: ['tablero.propio', 'tablero.equipo', 'tablero.sucursal'],
       descripcion: 'Satisfacción, tendencias y reportes del periodo.' },
     { id: 'catalogos', texto: 'Catálogos', icono: 'bi-journal-bookmark', href: 'catalogos.html', listo: true,

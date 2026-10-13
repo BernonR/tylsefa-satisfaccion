@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Indicadores | Tylsefa</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo-tylsefa.png">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="ty-pendiente" data-pagina="indicadores">
+  <main class="ty-principal">
+    <header class="ty-encabezado">
+      <div>
+        <h1 class="ty-titulo-grande mb-1">Tablero de indicadores</h1>
+        <p class="ty-secundario mb-0" id="subtitulo">Resultados del periodo seleccionado.</p>
+      </div>
+    </header>
+
+    <form class="ty-filtros ty-tablero-filtros" id="filtros" role="search" aria-label="Filtros del tablero" novalidate>
+      <div>
+        <label class="visually-hidden" for="f-periodo">Periodo</label>
+        <select class="form-select" id="f-periodo"></select>
+      </div>
+      <div class="ty-rango" id="rango" hidden>
+        <label class="visually-hidden" for="f-desde">Desde</label>
+        <input class="form-control" type="date" id="f-desde" aria-label="Desde">
+        <span class="ty-leyenda" aria-hidden="true">a</span>
+        <label class="visually-hidden" for="f-hasta">Hasta</label>
+        <input class="form-control" type="date" id="f-hasta" aria-label="Hasta">
+        <button class="btn btn-ty-secundario" type="submit" id="aplicar-rango">Aplicar</button>
+      </div>
+      <div>
+        <label class="visually-hidden" for="f-segmento">Segmento</label>
+        <select class="form-select" id="f-segmento">
+          <option value="">Ambos segmentos</option>
+          <option value="minorista">Minorista</option>
+          <option value="mayorista">Mayorista</option>
+        </select>
+      </div>
+      <div id="caja-vendedor" hidden>
+        <label class="visually-hidden" for="f-vendedor">Vendedor</label>
+        <select class="form-select" id="f-vendedor"><option value="">Todos los vendedores</option></select>
+      </div>
+      <div class="form-check form-switch ty-interruptor-pruebas" id="caja-pruebas" hidden>
+        <input class="form-check-input" type="checkbox" role="switch" id="f-pruebas">
+        <label class="form-check-label" for="f-pruebas">Incluir pruebas</label>
+      </div>
+    </form>
+
+    <div class="ty-aviso-pruebas" id="aviso-pruebas" role="status" hidden>
+      <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+      <span>Se están mostrando también los registros de prueba. Úselo solo para capacitación: estos números no son los indicadores reales de la sucursal.</span>
+    </div>
+
+    <div class="ty-tablero" id="tablero" aria-live="polite" aria-busy="true">
+      <section class="ty-tarjeta ty-kpi" aria-labelledby="k1">
+        <h2 class="etiqueta" id="k1">Clientes satisfechos</h2>
+        <p class="valor" id="k-satisfechos">—</p>
+        <p class="detalle" id="k-satisfechos-detalle">Calificación 4 o 5</p>
+        <p class="cambio" id="k-satisfechos-cambio"></p>
+      </section>
+      <section class="ty-tarjeta ty-kpi" aria-labelledby="k2">
+        <h2 class="etiqueta" id="k2">Clientes insatisfechos</h2>
+        <p class="valor" id="k-insatisfechos">—</p>
+        <p class="detalle" id="k-insatisfechos-detalle">Calificación 1 o 2</p>
+        <p class="cambio" id="k-insatisfechos-cambio"></p>
+      </section>
+      <section class="ty-tarjeta ty-kpi" aria-labelledby="k3">
+        <h2 class="etiqueta" id="k3">Casos atendidos en plazo</h2>
+        <p class="valor" id="k-plazo">—</p>
+        <p class="detalle" id="k-plazo-detalle">Primer contacto y cierre a tiempo</p>
+      </section>
+      <section class="ty-tarjeta ty-kpi" aria-labelledby="k4">
+        <h2 class="etiqueta" id="k4">Respuestas</h2>
+        <p class="valor" id="k-respuestas">—</p>
+        <p class="detalle" id="k-respuestas-detalle">Cotizaciones calificadas en la terminal</p>
+      </section>
+
+      <section class="ty-tarjeta ty-panel ancho-2" aria-labelledby="t-tendencia">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-tendencia">Satisfacción en el tiempo</h2>
+          <p class="ty-leyenda mb-0" id="t-tendencia-detalle">Porcentaje de respuestas con calificación 4 o 5</p>
+        </div>
+        <div class="gr" id="g-tendencia"></div>
+      </section>
+      <section class="ty-tarjeta ty-panel" aria-labelledby="t-expuesto">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-expuesto">Ingreso expuesto</h2>
+          <p class="ty-leyenda mb-0">Monto cotizado a clientes insatisfechos o que no compraron</p>
+        </div>
+        <p class="ty-cifra-heroe ty-cifra mb-1" id="k-expuesto">—</p>
+        <p class="ty-secundario mb-0" id="k-expuesto-detalle"></p>
+        <dl class="ty-desglose" id="k-expuesto-segmentos"></dl>
+      </section>
+
+      <section class="ty-tarjeta ty-panel ancho-medio" aria-labelledby="t-reparto">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-reparto">Respuestas por calificación</h2>
+          <p class="ty-leyenda mb-0">Cantidad de respuestas en cada nivel de la escala de cinco puntos</p>
+        </div>
+        <div class="gr" id="g-reparto"></div>
+        <ul class="ty-escala-leyenda" aria-hidden="true">
+          <li><span class="muestra malo"></span>1 Muy insatisfecho</li><li><span class="muestra malo"></span>2 Insatisfecho</li>
+          <li><span class="muestra neutro"></span>3 Neutral</li><li><span class="muestra bueno"></span>4 Satisfecho</li><li><span class="muestra bueno"></span>5 Muy satisfecho</li>
+        </ul>
+      </section>
+      <section class="ty-tarjeta ty-panel ancho-medio" aria-labelledby="t-compra-nota">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-compra-nota">Satisfacción y compra</h2>
+          <p class="ty-leyenda mb-0">Porcentaje de clientes que compraron en cada nivel de calificación</p>
+        </div>
+        <div class="gr" id="g-compra-nota"></div>
+        <p class="ty-secundario mb-0" id="t-compra-nota-lectura"></p>
+      </section>
+
+      <section class="ty-tarjeta ty-panel ancho-medio" aria-labelledby="t-motivos">
+        <div class="cabecera">
+          <div class="titulo-con-control">
+            <h2 class="ty-subtitulo" id="t-motivos">Motivos de no compra</h2>
+            <div class="ty-segmentos ty-segmentos-chico" role="group" aria-label="Medir los motivos por">
+              <button type="button" class="activo" data-vista="cantidad" aria-pressed="true">Cantidad</button>
+              <button type="button" data-vista="monto" aria-pressed="false">Monto</button>
+            </div>
+          </div>
+          <p class="ty-leyenda mb-0" id="t-motivos-detalle">Lo que indicó el cliente cuando no compró</p>
+        </div>
+        <div class="gr" id="g-motivos"></div>
+      </section>
+
+      <section class="ty-tarjeta ty-panel ancho-medio" aria-labelledby="t-segmentos">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-segmentos">Minorista y mayorista</h2>
+          <p class="ty-leyenda mb-0">Resultados del periodo en cada segmento de cliente</p>
+        </div>
+        <div class="ty-tabla-envoltura plana">
+          <table class="ty-tabla compacta" id="tabla-segmentos">
+            <thead><tr><th scope="col">Indicador</th><th scope="col" class="num">Minorista</th><th scope="col" class="num">Mayorista</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="ty-tarjeta ty-panel" aria-labelledby="t-contacto">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-contacto">Tiempo de primer contacto</h2>
+          <p class="ty-leyenda mb-0">Promedio en horas hábiles contra el plazo comprometido</p>
+        </div>
+        <dl class="ty-contacto" id="contacto"></dl>
+      </section>
+      <section class="ty-tarjeta ty-panel ancho-2" id="panel-vendedores" aria-labelledby="t-vendedores">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-vendedores">Resultados por vendedor</h2>
+          <p class="ty-leyenda mb-0">Ordenado de mayor a menor satisfacción</p>
+        </div>
+        <div class="ty-tabla-envoltura plana">
+          <table class="ty-tabla compacta" id="tabla-vendedores">
+            <thead><tr><th scope="col">Vendedor</th><th scope="col" class="num">Respuestas</th><th scope="col" class="num">Satisfechos</th><th scope="col" class="num">Insatisfechos</th><th scope="col" class="num">Compra</th><th scope="col" class="num">Casos</th><th scope="col" class="num">En plazo</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="ty-tarjeta ty-panel ancho-medio" aria-labelledby="t-horario">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-horario">Respuestas por día y hora</h2>
+          <p class="ty-leyenda mb-0">Cuándo califican los clientes en la terminal; un tono más intenso indica más respuestas</p>
+        </div>
+        <div class="ty-calor" id="g-horario"></div>
+      </section>
+      <section class="ty-tarjeta ty-panel ancho-medio" aria-labelledby="t-retro">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-retro">Retroalimentación al vendedor</h2>
+          <p class="ty-leyenda mb-0">Calificaciones marcadas como Enterado y coaching confirmado en casos cerrados</p>
+        </div>
+        <ul class="ty-retro-lista" id="retro-vendedores"></ul>
+      </section>
+
+      <section class="ty-tarjeta ty-panel ancho-total" aria-labelledby="t-voz">
+        <div class="cabecera">
+          <h2 class="ty-subtitulo" id="t-voz">Voz del cliente</h2>
+          <p class="ty-leyenda mb-0">Últimos comentarios escritos en la terminal; las empresas se identifican por código</p>
+        </div>
+        <ul class="ty-voz" id="voz"></ul>
+      </section>
+    </div>
+    <p class="ty-leyenda mt-3 mb-0" id="pie">Los indicadores se calculan con las respuestas de la terminal de autoservicio y excluyen los registros de prueba.</p>
+  </main>
+  <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sistema.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/graficas.js"></script>
+  <script src="js/indicadores.js"></script>
+</body>
+</html>
