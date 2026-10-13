@@ -42,6 +42,11 @@ Panel.listo.then((yo) => {
     return `<span class="ty-estado ${e[0]}"><i class="bi ${e[1]}" aria-hidden="true"></i>${e[2]}</span>${fue}`;
   }
 
+  // Mayorista que no compró una cotización grande: va primero y se marca en rojo.
+  const prioridad = (c) => (c.prioritario && c.estado !== 'cerrado'
+    ? '<span class="ty-estado ty-prioritario" title="Mayorista que no compró una cotización mayor a Q20,000"><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>Prioritario</span> '
+    : '');
+
   function plazo(c) {
     if (c.estado === 'cerrado') {
       return c.plazo === 'fuera_de_plazo'
@@ -71,7 +76,7 @@ Panel.listo.then((yo) => {
     }
     cuerpo.innerHTML = lista.map((c) => `
       <tr class="ty-fila-accion${c.estado === 'cerrado' ? ' inactivo' : ''}" data-id="${c.id}" tabindex="0" aria-label="Abrir ${escapar(c.numero)}">
-        <td class="caso"><div class="ty-cifra principal">${escapar(c.numero)}${c.esPrueba ? '<span class="ty-etiqueta-prueba">Prueba</span>' : ''}</div><div class="mt-1">${estado(c)}</div></td>
+        <td class="caso"><div class="ty-cifra principal">${escapar(c.numero)}${c.esPrueba ? '<span class="ty-etiqueta-prueba">Prueba</span>' : ''}</div><div class="mt-1">${prioridad(c)}${estado(c)}</div></td>
         <td class="cliente"><div class="principal">${escapar(c.cliente)}</div><div class="ty-leyenda">${escapar(c.codigoCliente)} · ${c.segmento === 'mayorista' ? 'Mayorista' : 'Minorista'}</div></td>
         <td class="nota">${calificacion(c.calificacion)}</td>
         <td class="num ty-cifra monto">${escapar(moneda(c.monto))}</td>
@@ -105,7 +110,7 @@ Panel.listo.then((yo) => {
 
   function pintarDetalle(c) {
     document.getElementById('dialogo-caso-titulo').textContent = c.numero;
-    document.getElementById('caso-estado').innerHTML = estado(c) + (c.esPrueba ? '<span class="ty-etiqueta-prueba">Prueba</span>' : '');
+    document.getElementById('caso-estado').innerHTML = prioridad(c) + estado(c) + (c.esPrueba ? '<span class="ty-etiqueta-prueba">Prueba</span>' : '');
     const comentario = c.comentario ? `<blockquote class="ty-cita">“${escapar(c.comentario)}”</blockquote>` : '<span class="ty-secundario">Sin comentario</span>';
     const vendedor = c.acuseVendedor
       ? `Enterado el ${escapar(cuando(c.acuseVendedor))}${c.coachingConfirmado ? ` · coaching confirmado el ${escapar(cuando(c.coachingConfirmado))}` : ''}`

@@ -36,10 +36,10 @@ async function entrar(page, correo, contrasena = clave()) {
 }
 
 // Cotización registrada y calificada en la terminal; devuelve el caso creado.
-async function crearCaso({ cliente = minorista, calificacion = 2, comentario = 'Prueba automática de caso' } = {}) {
+async function crearCaso({ cliente = minorista, calificacion = 2, comentario = 'Prueba automática de caso', monto = '4200', compro = false } = {}) {
   const digitos = digitosNuevos();
-  expect((await supervisor.request.post('/api/cotizaciones', { data: { numero: digitos, monto: '4200', idVendedor: vendedor.id, idCliente: cliente.id } })).status()).toBe(201);
-  const r = await tableta.request.post('/api/terminal/respuestas', { data: { numero: digitos, calificacion, compro: false, idMotivo: 1, comentario } });
+  expect((await supervisor.request.post('/api/cotizaciones', { data: { numero: digitos, monto, idVendedor: vendedor.id, idCliente: cliente.id } })).status()).toBe(201);
+  const r = await tableta.request.post('/api/terminal/respuestas', { data: { numero: digitos, calificacion, compro, idMotivo: compro ? undefined : 1, comentario } });
   expect(r.status()).toBe(201);
   const { caso } = await r.json();
   const { rows: [fila] } = await bd.consulta(`SELECT cs.id_caso AS id, r.id_respuesta AS "idRespuesta" FROM caso_servicio cs
@@ -225,4 +225,34 @@ test('CP-M05-09 los avances del caso mayorista se avisan por correo y en la apli
   await expect.poll(async () => (await notificaciones(caso.id)).filter((n) => n.tipo === 'caso_actualizado' && n.usuario === idSupervisor).map((n) => n.canal).sort())
     .toEqual(['aplicacion', 'correo']);
   await gerente.close();
+});
+
+test('CP-M05-10 el mayorista que no compró una cotización mayor a Q20,000 es prioritario, va primero y avisa con urgencia', async ({ browser }) => {
+  const normal = await crearCaso({ cliente: mayorista, monto: '15000' });
+  const compro = await crearCaso({ cliente: mayorista, monto: '50000', compro: true });
+  const urgente = await crearCaso({ cliente: mayorista, monto: '25000' });
+  const gerente = await contexto(browser, usuarios.gerente.correo);
+  const lista = (await (await gerente.request.get('/api/casos?estado=pendientes&buscar=Prueba automática M05 mayorista')).json()).casos;
+  const de = (numero) => lista.find((c) => c.numero === numero);
+  expect(de(urgente.numero).prioritario).toBe(true);
+  expect(de(normal.numero).prioritario).toBe(false);
+  expect(de(compro.numero).prioritario).toBe(false);
+  expect(lista.findIndex((c) => c.numero === urgente.numero)).toBeLessThan(lista.findIndex((c) => c.numero === normal.numero));
+  await gerente.close();
+});
+
+test('CP-M05-11 al vencer el plazo de cierre llega una sola alerta al responsable y a la gerencia', async () => {
+  const caso = await crearCaso();
+  expect((await supervisor.request.post(`/api/casos/${caso.id}/contacto`, { data: { nota: 'Contacto a tiempo' } })).status()).toBe(200);
+  await bd.consulta("UPDATE caso_servicio SET fecha_hora_creacion = now() - interval '12 days', fecha_hora_primer_contacto = now() - interval '12 days' WHERE id_caso = $1", [caso.id]);
+  const lista = (await (await supervisor.request.get(`/api/casos?buscar=${caso.numero}`)).json()).casos;
+  expect(lista[0].plazo).toBe('vencido');
+  const alertas = async () => (await notificaciones(caso.id)).filter((n) => n.tipo === 'cierre_vencido');
+  await expect.poll(async () => (await alertas()).filter((n) => n.canal === 'correo').length).toBeGreaterThanOrEqual(2);
+  const primeras = (await alertas()).length;
+  await supervisor.request.get(`/api/casos?buscar=${caso.numero}`);
+  expect((await alertas()).length).toBe(primeras); // no se repite
+  const { rows: [g] } = await bd.consulta(`SELECT count(*)::int AS n FROM notificacion n JOIN usuario u ON u.id_usuario = n.id_usuario_destinatario
+    JOIN perfil p ON p.id_perfil = u.id_perfil WHERE n.id_caso = $1 AND n.tipo = 'cierre_vencido' AND p.nombre = 'gerente'`, [caso.id]);
+  expect(g.n).toBeGreaterThan(0);
 });

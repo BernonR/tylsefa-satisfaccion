@@ -287,10 +287,10 @@
       const nuevos = datos.avisos.filter((a) => a.tipo !== 'copia_vendedor');
       const texto = nuevos.length
         ? `Tiene ${nuevos.length} aviso${nuevos.length > 1 ? 's' : ''} de casos: ${nuevos.slice(0, 3).map((a) => a.numeroCaso).join(', ')}${nuevos.length > 3 ? '…' : ''}`
-        : `Tiene ${datos.avisos.length} retroalimentación nueva de sus clientes.`;
+        : (datos.avisos.length === 1 ? 'Tiene 1 retroalimentación nueva de sus clientes.' : `Tiene ${datos.avisos.length} retroalimentaciones nuevas de sus clientes.`);
       Tylsefa.aviso(texto, 'bi-bell-fill', 'var(--ty-aviso)');
     } else if (datos.retroalimentacionPendiente) {
-      Tylsefa.aviso(`Tiene ${datos.retroalimentacionPendiente} retroalimentación por leer.`, 'bi-bell-fill', 'var(--ty-aviso)');
+      Tylsefa.aviso((datos.retroalimentacionPendiente === 1 ? 'Tiene 1 retroalimentación por leer.' : `Tiene ${datos.retroalimentacionPendiente} retroalimentaciones por leer.`), 'bi-bell-fill', 'var(--ty-aviso)');
     }
   }
 

@@ -53,9 +53,15 @@ Panel.listo.then((yo) => {
   }
 
   function pintar() {
-    const calificadas = respuestas.filter((r) => !r.esPrueba);
-    const promedio = calificadas.length ? calificadas.reduce((t, r) => t + r.calificacion, 0) / calificadas.length : null;
+    // Promedio del mes en curso (hora de Guatemala), sin las respuestas de prueba.
+    // La evolución de meses anteriores se consulta en Indicadores.
+    const mesDe = (iso) => new Intl.DateTimeFormat('es-GT', { timeZone: 'America/Guatemala', year: 'numeric', month: '2-digit' }).format(new Date(iso));
+    const esteMes = mesDe(new Date().toISOString());
+    const delMes = respuestas.filter((r) => !r.esPrueba && mesDe(r.fechaHora) === esteMes);
+    const promedio = delMes.length ? delMes.reduce((t, r) => t + r.calificacion, 0) / delMes.length : null;
     document.getElementById('k-promedio').textContent = promedio === null ? '—' : promedio.toFixed(1);
+    const nombreMes = new Intl.DateTimeFormat('es-GT', { timeZone: 'America/Guatemala', month: 'long', year: 'numeric' }).format(new Date());
+    document.getElementById('k-promedio-detalle').textContent = `${nombreMes.charAt(0).toUpperCase()}${nombreMes.slice(1)} · ${delMes.length} respuesta${delMes.length === 1 ? '' : 's'}`;
     const porLeer = respuestas.filter((r) => !r.enterado).length;
     document.getElementById('k-por-leer').textContent = porLeer;
     Panel.cuentaMenu('retroalimentacion', porLeer);
