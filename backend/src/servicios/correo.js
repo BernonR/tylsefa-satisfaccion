@@ -12,13 +12,17 @@ function omitido(direccion) {
 
 // Devuelve 'enviada', 'fallida' o 'pendiente'. Nunca lanza error: un correo que no sale
 // no debe impedir que se registre la respuesta ni el caso.
-async function enviar({ para, asunto, html, texto }) {
+async function enviar({ para, asunto, html, texto, urgente = false }) {
   if (omitido(para) || !config.correo.llave) return 'pendiente';
   try {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${config.correo.llave}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: config.correo.remitente, to: [para], subject: asunto, html, text: texto }),
+      body: JSON.stringify({
+        from: config.correo.remitente, to: [para], subject: asunto, html, text: texto,
+        // Prioridad alta: los programas de correo lo muestran como importante.
+        headers: urgente ? { 'X-Priority': '1', Importance: 'high' } : undefined,
+      }),
       signal: AbortSignal.timeout(10000),
     });
     if (!r.ok) {

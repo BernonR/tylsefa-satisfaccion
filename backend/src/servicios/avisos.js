@@ -53,13 +53,16 @@ async function casoNuevo(idCaso) {
     await porCorreo({
       idCaso, idUsuario: id, para, tipo,
       mensaje: {
-        asunto: `${tipo === 'caso_asignado' ? 'Caso asignado' : 'Copia de caso'} ${c.numero}: ${c.cliente} calificó ${c.calificacion} de 5`,
+        urgente: c.prioritario,
+        asunto: `${c.prioritario ? 'URGENTE · Caso prioritario' : tipo === 'caso_asignado' ? 'Caso asignado' : 'Copia de caso'} ${c.numero}: ${c.cliente} calificó ${c.calificacion} de 5`,
         ...correo.plantilla({
-          titulo: tipo === 'caso_asignado' ? `Se le asignó el caso ${c.numero}` : `Copia del caso ${c.numero}`,
+          titulo: c.prioritario ? `Caso prioritario ${c.numero}: venta grande en riesgo` : tipo === 'caso_asignado' ? `Se le asignó el caso ${c.numero}` : `Copia del caso ${c.numero}`,
           saludo: `Hola, ${primerNombre(nombre)}:`,
-          parrafos: [tipo === 'caso_asignado'
-            ? `Un cliente calificó la atención como insatisfactoria. Tiene ${plazoTexto(c.minutosContacto)} para el primer contacto.`
-            : `Recibe esta copia para dar seguimiento. El responsable del caso es ${c.responsable}.`],
+          parrafos: [
+            ...(c.prioritario ? [`Cliente mayorista que no compró una cotización de ${moneda(c.monto)}. Conviene contactarlo cuanto antes para no perder la venta.`] : []),
+            tipo === 'caso_asignado'
+              ? `Un cliente calificó la atención como insatisfactoria. Tiene ${plazoTexto(c.minutosContacto)} para el primer contacto.`
+              : `Recibe esta copia para dar seguimiento. El responsable del caso es ${c.responsable}.`],
           filas: filasCaso(c),
           boton: { texto: 'Abrir el caso', url: enlaceCasos(c.id) },
         }),
@@ -144,6 +147,36 @@ async function casoActualizado(idCaso, idActor, accion, texto) {
   }
 }
 
+// Plazo de cierre vencido: responsable, copia y gerencia reciben una sola alerta por caso.
+async function cierreVencido(idCaso) {
+  const c = await casos.obtener(idCaso);
+  if (!c) return;
+  const { rows: gerencia } = await consulta(`
+    SELECT u.id_usuario AS id, u.correo, u.nombres || ' ' || u.apellidos AS nombre FROM usuario u JOIN perfil p ON p.id_perfil = u.id_perfil
+     WHERE p.nombre = 'gerente' AND u.activo ORDER BY (u.correo LIKE '%@pruebas.tylsefa.com'), u.id_usuario LIMIT 1`);
+  const destinos = [[c.idResponsable, c.correoResponsable, c.responsable], [c.idCopia, c.correoCopia, c.copia],
+    ...gerencia.map((g) => [g.id, g.correo, g.nombre])]
+    .filter(([id], i, todos) => id && todos.findIndex(([otro]) => otro === id) === i);
+  // Primero los avisos en la aplicación (marcan que la alerta ya se dio); los correos salen después, sin esperar.
+  for (const [id] of destinos) await registrar({ idCaso, idUsuario: id, canal: 'aplicacion', tipo: 'cierre_vencido' });
+  enSegundoPlano((async () => { for (const [id, para, nombre] of destinos) {
+    await porCorreo({
+      idCaso, idUsuario: id, para, tipo: 'cierre_vencido',
+      mensaje: {
+        urgente: true,
+        asunto: `Caso ${c.numero} sin cerrar: venció el plazo de cierre`,
+        ...correo.plantilla({
+          titulo: `El caso ${c.numero} pasó su plazo de cierre`,
+          saludo: `Hola, ${primerNombre(nombre)}:`,
+          parrafos: [`El plazo de ${c.horasCierre} horas hábiles para cerrar este caso venció y sigue abierto. Revise el seguimiento y registre la resolución.`],
+          filas: [...filasCaso(c).slice(0, 6), ['Estado', { abierto: 'Sin contacto', en_seguimiento: 'En seguimiento', escalado: 'Escalado' }[c.estado] || c.estado]],
+          boton: { texto: 'Abrir el caso', url: enlaceCasos(c.id) },
+        }),
+      },
+    });
+  } })());
+}
+
 // Cierre: el cliente recibe la resolución (CU-06, paso 8).
 async function casoCerrado(idCaso) {
   const c = await casos.obtener(idCaso);
@@ -224,4 +257,4 @@ function enSegundoPlano(promesa) {
   promesa.catch((error) => console.error('Aviso no enviado:', error.message));
 }
 
-module.exports = { casoNuevo, casoEscalado, casoCerrado, casoActualizado, respuestaAlVendedor, delUsuario, marcarLeidos, enSegundoPlano };
+module.exports = { casoNuevo, casoEscalado, casoCerrado, cierreVencido, casoActualizado, respuestaAlVendedor, delUsuario, marcarLeidos, enSegundoPlano };

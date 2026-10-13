@@ -794,3 +794,5 @@ body.ty-pendiente .ty-app { visibility: hidden; }
 .ty-alcance { display: inline-flex; align-items: center; gap: 0.3rem; margin-left: 0.5rem; padding: 0.125rem 0.5rem; border-radius: var(--ty-radio-pildora); font-size: 0.6875rem; font-weight: 600; vertical-align: middle; }
 .ty-alcance.interno { background: var(--ty-superficie-3); color: var(--ty-texto-2); }
 .ty-alcance.cliente { background: var(--ty-aviso-suave); color: var(--ty-aviso); }
+.ty-prioritario { background: var(--ty-error); color: #1a0705; }
+.ty-prioritario .bi { font-size: 0.85em; }

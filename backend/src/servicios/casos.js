@@ -6,6 +6,10 @@
 const { consulta } = require('../bd');
 const { sumarMinutosHabiles } = require('./horario');
 
+// Caso prioritario: mayorista que no compró con una cotización mayor a este monto (venta grande en riesgo).
+// No cambia el plazo (sigue en horas hábiles): va primero en la bandeja y la gerencia recibe aviso urgente.
+const MONTO_PRIORITARIO = 20000;
+
 const CAMPOS = `
   cs.id_caso AS id, cs.numero_caso AS numero, cs.estado, cs.es_prueba AS "esPrueba",
   cs.fecha_hora_creacion AS creado, cs.fecha_hora_primer_contacto AS contactado,
@@ -17,7 +21,8 @@ const CAMPOS = `
   r.fecha_hora_captura AS respondido,
   c.numero_correlativo AS cotizacion, c.monto_cotizado::float AS monto,
   e.codigo AS "codigoCliente", e.nombre AS cliente, e.segmento, e.correo_empresarial AS "correoCliente", e.contacto,
-  c.id_vendedor AS "idVendedor", v.nombres || ' ' || v.apellidos AS vendedor, v.correo AS "correoVendedor"`;
+  c.id_vendedor AS "idVendedor", v.nombres || ' ' || v.apellidos AS vendedor, v.correo AS "correoVendedor",
+  (e.segmento = 'mayorista' AND NOT r.concreto_compra AND c.monto_cotizado > ${MONTO_PRIORITARIO}) AS prioritario`;
 const ORIGEN = `
   FROM caso_servicio cs
   JOIN encuesta_respuesta r ON r.id_respuesta = cs.id_respuesta
@@ -57,7 +62,9 @@ async function listar(usuario, { estado = '', buscar = '' } = {}) {
   const acceso = filtroAcceso(usuario, agregar);
   if (acceso) filtros.push(acceso);
   if (estado === 'pendientes') filtros.push("cs.estado <> 'cerrado'");
-  else if (['abierto', 'en_seguimiento', 'escalado', 'cerrado'].includes(estado)) filtros.push(`cs.estado = ${agregar(estado)}`);
+  // "Escalados": pendientes a los que se les venció el primer contacto, aunque ya estén en seguimiento.
+  else if (estado === 'escalado') filtros.push("cs.fecha_hora_escalamiento IS NOT NULL AND cs.estado <> 'cerrado'");
+  else if (['abierto', 'en_seguimiento', 'cerrado'].includes(estado)) filtros.push(`cs.estado = ${agregar(estado)}`);
   if (buscar) {
     const p = agregar(`%${buscar.toLowerCase()}%`);
     filtros.push(`(lower(cs.numero_caso) LIKE ${p} OR lower(c.numero_correlativo) LIKE ${p} OR lower(e.nombre) LIKE ${p}
@@ -65,7 +72,9 @@ async function listar(usuario, { estado = '', buscar = '' } = {}) {
   }
   const donde = filtros.length ? `WHERE ${filtros.join(' AND ')}` : '';
   const { rows } = await consulta(`SELECT ${CAMPOS} ${ORIGEN} ${donde}
-    ORDER BY (cs.estado = 'cerrado'), cs.fecha_hora_creacion DESC LIMIT 300`, valores);
+    ORDER BY (cs.estado = 'cerrado'),
+             (cs.estado <> 'cerrado' AND e.segmento = 'mayorista' AND NOT r.concreto_compra AND c.monto_cotizado > ${MONTO_PRIORITARIO}) DESC,
+             cs.fecha_hora_creacion DESC LIMIT 300`, valores);
   return rows.map((c) => conPlazos(c));
 }
 
@@ -156,4 +165,12 @@ async function escalarVencidos(ahora = new Date()) {
   return escalados;
 }
 
-module.exports = { listar, obtener, detalle, puedeVer, puedeContactar, puedeCerrar, registrarContacto, agregarActuacion, cerrar, escalarVencidos, conPlazos };
+// Casos sin cerrar cuyo plazo de cierre ya pasó y que aún no tienen su alerta (una sola por caso).
+async function cierresVencidos(ahora = new Date()) {
+  const { rows } = await consulta(`SELECT ${CAMPOS} ${ORIGEN}
+    WHERE cs.estado <> 'cerrado'
+      AND NOT EXISTS (SELECT 1 FROM notificacion n WHERE n.id_caso = cs.id_caso AND n.tipo = 'cierre_vencido')`);
+  return rows.filter((c) => ahora > sumarMinutosHabiles(c.creado, c.horasCierre * 60)).map((c) => c.id);
+}
+
+module.exports = { MONTO_PRIORITARIO, cierresVencidos, listar, obtener, detalle, puedeVer, puedeContactar, puedeCerrar, registrarContacto, agregarActuacion, cerrar, escalarVencidos, conPlazos };

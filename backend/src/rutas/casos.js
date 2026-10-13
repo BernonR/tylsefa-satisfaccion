@@ -20,6 +20,11 @@ async function revisarVencidos() {
     await bitacora.registrar({ accion: 'escalamiento_caso', entidad: 'caso_servicio', idRegistro: id, detalle: 'Venció el plazo de primer contacto' });
     avisos.enSegundoPlano(avisos.casoEscalado(id));
   }
+  // Plazo de cierre vencido: una alerta por caso al responsable, la copia y la gerencia.
+  for (const id of await casos.cierresVencidos()) {
+    await avisos.cierreVencido(id);
+    await bitacora.registrar({ accion: 'vencimiento_cierre', entidad: 'caso_servicio', idRegistro: id, detalle: 'Venció el plazo de cierre' });
+  }
 }
 
 async function cargar(req, res) {
