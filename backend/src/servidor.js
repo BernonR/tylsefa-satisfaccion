@@ -40,6 +40,7 @@ const casos = require('./rutas/casos');
 app.use('/api/casos', casos.rutas);
 app.use('/api/retroalimentacion', require('./rutas/retroalimentacion'));
 app.use('/api/avisos', require('./rutas/avisos'));
+app.use('/api/indicadores', require('./rutas/indicadores'));
 app.use('/api', (req, res) => res.status(404).json({ mensaje: 'Ruta no encontrada.' }));
 
 // En la computadora de desarrollo el mismo servidor entrega la interfaz.

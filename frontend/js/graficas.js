@@ -56,6 +56,7 @@
     function dibujar() {
       contenedor.querySelector('svg')?.remove();
       const ancho = contenedor.clientWidth;
+      if (ancho < 80) return; // aún sin espacio: se dibuja cuando el contenedor tenga ancho
       const m = { arriba: 16, derecha: 16, abajo: 32, izquierda: 44 };
       const svg = nodo('svg', { width: ancho, height: alto, viewBox: `0 0 ${ancho} ${alto}`, role: 'img', 'aria-label': titulo });
       contenedor.prepend(svg);
@@ -85,7 +86,8 @@
       area.classList.add('gr-entrada');
       const trazo = nodo('polyline', { points: puntos, fill: 'none', stroke: serie, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
       trazo.classList.add('gr-trazo');
-      const largo = trazo.getTotalLength ? trazo.getTotalLength() : 0;
+      let largo = 0;
+      try { largo = trazo.getTotalLength(); } catch { /* sin dibujar todavía */ }
       trazo.style.setProperty('--largo', largo);
 
       // Último valor etiquetado directamente
@@ -121,6 +123,7 @@
     function dibujar() {
       contenedor.querySelector('svg')?.remove();
       const ancho = contenedor.clientWidth;
+      if (ancho < 80) return;
       const n = valores.length;
       const altoTotal = alto ?? (horizontal ? n * fila + 8 : 220);
       const svg = nodo('svg', { width: ancho, height: altoTotal, viewBox: `0 0 ${ancho} ${altoTotal}`, role: 'img', 'aria-label': titulo });
@@ -147,7 +150,7 @@
           const yc = i * fila + fila / 2;
           const t = nodo('text', { x: izq - 12, y: yc + 4, 'text-anchor': 'end', fill: tintaFuerte, 'font-size': 13 }, svg);
           t.textContent = e;
-          nodo('rect', { x: izq, y: yc - grosor / 2, width: ancho - izq - der, height: grosor, rx: 4, fill: css(contenedor, '--gr-pista') }, svg);
+          nodo('rect', { x: izq, y: yc - grosor / 2, width: Math.max(ancho - izq - der, 0), height: grosor, rx: 4, fill: css(contenedor, '--gr-pista') }, svg);
           const barra = nodo('rect', { x: izq, y: yc - grosor / 2, width: Math.max(x(valores[i]), 4), height: grosor, rx: 4, fill: colores ? colores[i] : css(contenedor, '--gr-serie-1') }, svg);
           barra.classList.add('gr-barra-h');
           const v = nodo('text', { x: ancho - 4, y: yc + 4, 'text-anchor': 'end', fill: tintaFuerte, 'font-size': 13, 'font-weight': 600 }, svg);
