@@ -48,6 +48,15 @@
         <tbody></tbody>
       </table>
     </div>
+
+    <section class="ty-tarjeta ty-depuracion" aria-labelledby="t-depuracion">
+      <div class="texto">
+        <h2 class="ty-subtitulo" id="t-depuracion">Registros de prueba</h2>
+        <p class="ty-secundario mb-1">Cotizaciones marcadas como prueba, con sus respuestas, casos y avisos. No cuentan en los indicadores y se pueden eliminar cuando terminen las pruebas o la capacitación. Los registros reales no se tocan.</p>
+        <p class="ty-leyenda mb-0" id="resumen-pruebas" aria-live="polite">Contando registros de prueba…</p>
+      </div>
+      <button type="button" class="btn btn-ty-peligro" id="depurar" disabled><i class="bi bi-trash3" aria-hidden="true"></i>Eliminar registros de prueba</button>
+    </section>
   </main>
 
   <!-- Alta y edición de usuario -->
@@ -118,5 +127,6 @@
   <script src="js/sistema.js"></script>
   <script src="js/panel.js"></script>
   <script src="js/usuarios.js"></script>
+  <script src="js/depuracion.js"></script>
 </body>
 </html>

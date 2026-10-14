@@ -80,13 +80,20 @@ Panel.listo.then((yo) => {
     revelar(g);
   }
 
-  async function cargar() {
+  // Los mismos filtros sirven para el tablero y para exportar.
+  function leerParametros() {
     const { desde, hasta } = periodo();
-    if (!desde || !hasta) { Tylsefa.aviso('Indique la fecha inicial y la final.', 'bi-exclamation-circle-fill', 'var(--ty-error)'); return; }
+    if (!desde || !hasta) return null;
     const parametros = new URLSearchParams({ desde, hasta });
     if ($('f-segmento').value) parametros.set('segmento', $('f-segmento').value);
     if ($('f-vendedor').value) parametros.set('vendedor', $('f-vendedor').value);
     if ($('f-pruebas').checked) parametros.set('pruebas', '1');
+    return parametros;
+  }
+
+  async function cargar() {
+    const parametros = leerParametros();
+    if (!parametros) { Tylsefa.aviso('Indique la fecha inicial y la final.', 'bi-exclamation-circle-fill', 'var(--ty-error)'); return; }
     const esta = ++peticion;
     tablero.setAttribute('aria-busy', 'true');
     try {
@@ -111,6 +118,7 @@ Panel.listo.then((yo) => {
       $('panel-vendedores').hidden = true;
     }
     $('caja-pruebas').hidden = !datos.puedeIncluirPruebas;
+    $('caja-exportar').hidden = !datos.puedeExportar;
   }
 
   // ---------- Pintado ----------
@@ -295,6 +303,72 @@ Panel.listo.then((yo) => {
         </div>
       </li>`).join('') : '<li class="ty-secundario">Ningún cliente escribió comentarios en este periodo.</li>';
   }
+
+  // ---------- Exportar (solo gerencia: reporte.exportar) ----------
+  const celda = (v) => {
+    const t = v === null || v === undefined ? '' : String(v);
+    return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+  };
+  const decimal = (v) => (v === null || v === undefined ? '' : v.toFixed(1));
+  const enGuatemala = (iso, opciones) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Guatemala', hour12: false, ...opciones }).format(new Date(iso));
+  const fechaCsv = (iso) => enGuatemala(iso, { year: 'numeric', month: '2-digit', day: '2-digit' });
+  const horaCsv = (iso) => enGuatemala(iso, { hour: '2-digit', minute: '2-digit' });
+  const segmentoTexto = (s) => (s === 'mayorista' ? 'Mayorista' : 'Minorista');
+
+  function descargar(nombre, filas) {
+    // Con BOM para que Excel reconozca las tildes.
+    const texto = '\uFEFF' + filas.map((f) => f.map(celda).join(',')).join('\r\n');
+    const enlace = document.createElement('a');
+    enlace.href = URL.createObjectURL(new Blob([texto], { type: 'text/csv;charset=utf-8' }));
+    enlace.download = nombre;
+    document.body.appendChild(enlace);
+    enlace.click();
+    setTimeout(() => { URL.revokeObjectURL(enlace.href); enlace.remove(); }, 1000);
+  }
+
+  const ARCHIVOS = {
+    respuestas: ({ detalle, filtros }) => [
+      ['Fecha', 'Hora', 'Cotización', 'Cliente', 'Segmento', 'Vendedor', 'Calificación', 'Compró', 'Motivo de no compra', 'Monto cotizado', 'Caso', ...(filtros.pruebas ? ['Prueba'] : [])],
+      ...detalle.respuestas.map((r) => [fechaCsv(r.fecha), horaCsv(r.fecha), r.cotizacion, r.codigoCliente, segmentoTexto(r.segmento), r.vendedor,
+        r.calificacion, r.compro ? 'Sí' : 'No', r.motivo || '', r.monto.toFixed(2), r.caso || '', ...(filtros.pruebas ? [r.esPrueba ? 'Sí' : 'No'] : [])]),
+    ],
+    vendedores: ({ indicadores: k }) => [
+      ['Vendedor', 'Respuestas', 'Promedio (1 a 5)', 'Satisfechos (%)', 'Insatisfechos (%)', 'Tasa de compra (%)', 'Casos', 'Casos en plazo (%)', 'Leídas (%)', 'Coaching confirmado'],
+      ...k.vendedores.map((v) => [v.nombre, v.respuestas, decimal(v.promedio), decimal(v.satisfechos), decimal(v.insatisfechos), decimal(v.tasaCompra), v.casos, v.casos ? decimal(v.enPlazo) : '', decimal(v.leidas), v.coaching]),
+      ['Total', k.respuestas, decimal(k.promedio), decimal(k.satisfechos), decimal(k.insatisfechos), decimal(k.compra.tasa), k.casos.total, decimal(k.casos.porcentaje), '', ''],
+    ],
+    casos: ({ detalle }) => [
+      ['Caso', 'Fecha', 'Cliente', 'Segmento', 'Calificación', 'Responsable', 'Estado', 'Primer contacto (min hábiles)', 'Cierre (min hábiles)', 'Cumplimiento'],
+      ...detalle.casos.map((c) => [c.numero, fechaCsv(c.creado), c.codigoCliente, segmentoTexto(c.segmento), c.calificacion, c.responsable,
+        { abierto: 'Sin primer contacto', en_seguimiento: 'En seguimiento', escalado: 'Escalado', cerrado: 'Cerrado' }[c.estado] || c.estado,
+        c.minutosContacto ?? '', c.minutosCierre ?? '', { en_plazo: 'En plazo', vencido: 'Vencido', en_curso: 'En curso' }[c.cumplimiento]]),
+    ],
+    motivos: ({ indicadores: k }) => [
+      ['Motivo de no compra', 'Veces', 'Monto cotizado no vendido'],
+      ...k.motivos.map((m) => [m.motivo, m.cantidad, m.monto.toFixed(2)]),
+    ],
+  };
+  const NOMBRES = { respuestas: 'Respuestas', vendedores: 'Resultados_por_vendedor', casos: 'Casos', motivos: 'Motivos_de_no_compra' };
+
+  document.querySelector('.ty-menu-exportar').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-exportar]');
+    if (!b) return;
+    const parametros = leerParametros();
+    if (!parametros) { Tylsefa.aviso('Indique la fecha inicial y la final.', 'bi-exclamation-circle-fill', 'var(--ty-error)'); return; }
+    if (b.dataset.exportar === 'pdf') {
+      parametros.set('imprimir', '1');
+      window.open(`reporte.html?${parametros}`, '_blank', 'noopener');
+      return;
+    }
+    try {
+      const datos = await Api.pedir(`/api/indicadores/reporte?${parametros}`);
+      const rango = datos.periodo.desde === datos.periodo.hasta ? datos.periodo.desde : `${datos.periodo.desde}_a_${datos.periodo.hasta}`;
+      descargar(`${NOMBRES[b.dataset.exportar]}_${rango}${datos.filtros.pruebas ? '_con_pruebas' : ''}.csv`, ARCHIVOS[b.dataset.exportar](datos));
+      Tylsefa.aviso('Archivo descargado.');
+    } catch (error) {
+      Tylsefa.aviso(error.message, 'bi-exclamation-circle-fill', 'var(--ty-error)');
+    }
+  });
 
   // ---------- Filtros ----------
   document.querySelector('[aria-label="Medir los motivos por"]').addEventListener('click', (e) => {

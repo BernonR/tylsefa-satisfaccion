@@ -191,3 +191,57 @@ test('CP-M06-06 análisis adicionales: compra por calificación, monto por motiv
   await expect(page.locator('#voz li').first()).toContainText('Prueba automática de indicadores');
   await expect(page.locator('#voz li').first()).toContainText(/CLI-\d{4}/);
 });
+
+test('CP-M06-07 la gerencia exporta el reporte en PDF y en CSV; el supervisor no puede exportar', async ({ page, context }) => {
+  await entrar(page, usuarios.gerente.correo);
+  const tablero = new PaginaIndicadores(page);
+  await tablero.abrir();
+  await tablero.filtrar(() => tablero.periodo.selectOption({ label: 'Hoy' }));
+  await tablero.filtrar(() => tablero.vendedor.selectOption(String(equipo.id)));
+
+  // CSV de respuestas: encabezado y las 4 respuestas reales de la vendedora (la de prueba no va).
+  await page.locator('#exportar').click();
+  const [descarga] = await Promise.all([page.waitForEvent('download'), page.locator('[data-exportar="respuestas"]').click()]);
+  expect(descarga.suggestedFilename()).toMatch(/^Respuestas_\d{4}-\d{2}-\d{2}\.csv$/);
+  const texto = require('node:fs').readFileSync(await descarga.path(), 'utf8');
+  const filas = texto.replace(/^﻿/, '').trim().split(/\r?\n/);
+  expect(filas[0]).toBe('Fecha,Hora,Cotización,Cliente,Segmento,Vendedor,Calificación,Compró,Motivo de no compra,Monto cotizado,Caso');
+  expect(filas).toHaveLength(5);
+  expect(texto).toMatch(/CLI-\d{4}/);
+
+  // PDF: se abre la hoja del reporte con los mismos filtros, lista para "Guardar como PDF".
+  await page.locator('#exportar').click();
+  const [hoja] = await Promise.all([context.waitForEvent('page'), page.locator('[data-exportar="pdf"]').click()]);
+  await hoja.evaluate(() => { window.print = () => { document.body.dataset.impreso = 'si'; }; });
+  await expect(hoja.locator('body')).toHaveAttribute('data-listo', 'true');
+  await expect(hoja.locator('h1')).toContainText('Reporte de satisfacción del cliente');
+  await expect(hoja.locator('.subtitulo')).toContainText('Excluye registros de prueba');
+  await expect(hoja.locator('.indicadores')).toContainText('50.0 %');
+  await hoja.close();
+
+  // El supervisor no tiene el permiso reporte.exportar.
+  expect((await supervisor.request.get('/api/indicadores/reporte')).status()).toBe(403);
+  const s = await (await supervisor.request.get('/api/indicadores')).json();
+  expect(s.puedeExportar).toBe(false);
+});
+
+test('CP-M06-08 solo el administrador ve y depura los registros de prueba (RF15)', async ({ page, browser }) => {
+  expect((await supervisor.request.get('/api/registros-prueba')).status()).toBe(403);
+  expect((await supervisor.request.delete('/api/registros-prueba')).status()).toBe(403);
+  const gerencia = await contexto(browser, usuarios.gerente.correo);
+  expect((await gerencia.request.delete('/api/registros-prueba')).status()).toBe(403);
+  await gerencia.close();
+
+  // El administrador ve cuántos hay; al cancelar no se borra nada.
+  const antes = (await bd.consulta('SELECT count(*)::int AS n FROM cotizacion WHERE es_prueba')).rows[0].n;
+  expect(antes).toBeGreaterThan(0);
+  await entrar(page, usuarios.administrador.correo);
+  await page.goto('/usuarios.html');
+  await expect(page.locator('#resumen-pruebas')).toContainText(/Hay \d+ cotizaci/);
+  await page.locator('#depurar').click();
+  const alerta = page.locator('.ty-alerta.show');
+  await expect(alerta).toContainText('no se puede deshacer');
+  await alerta.locator('[data-bs-dismiss="modal"]').click();
+  await expect(alerta).toBeHidden();
+  expect((await bd.consulta('SELECT count(*)::int AS n FROM cotizacion WHERE es_prueba')).rows[0].n).toBe(antes);
+});
