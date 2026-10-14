@@ -1,0 +1,93 @@
+/* Reporte de satisfacción para imprimir o guardar como PDF (diseño aprobado, tamaño carta, fondo claro). */
+@font-face { font-family: "Inter"; src: url("../vendor/inter/Inter-Regular.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Inter"; src: url("../vendor/inter/Inter-SemiBold.woff2") format("woff2"); font-weight: 600; }
+@font-face { font-family: "Inter"; src: url("../vendor/inter/Inter-Bold.woff2") format("woff2"); font-weight: 700; }
+
+/* Colores de la hoja membretada de Tylsefa */
+:root {
+  --rp-azul: #1194cb;
+  --rp-azul-texto: #0b6e9a;
+  --rp-gris: #5c6a70;
+  --rp-tinta: #111111;
+  --rp-tinta-2: #4a565c;
+  --rp-linea: #dfe5e8;
+  --rp-fondo-suave: #f4f7f9;
+  --rp-rojo: #c8423b;
+  --rp-verde: #1e8a5a;
+  --rp-ambar: #a8690f;
+}
+@page {
+  size: letter;
+  margin: 18mm 16mm 20mm;
+  @bottom-left { content: "Sistema de medición de la satisfacción del cliente · Tylsefa, sucursal Tulam Tzu"; font: 8pt Inter, sans-serif; color: #5c6a70; }
+  @bottom-right { content: "Página " counter(page) " de " counter(pages); font: 8pt Inter, sans-serif; color: #5c6a70; }
+}
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: "Inter", system-ui, sans-serif; color: var(--rp-tinta); font-size: 9.5pt; line-height: 1.45; background: #fff; }
+.hoja { max-width: 184mm; margin: 0 auto; }
+@media screen { body { background: #e9edf0; padding: 24px 0; } .hoja { background: #fff; padding: 18mm 16mm; box-shadow: 0 8px 30px rgba(0,0,0,.12); } }
+
+/* Membrete */
+.membrete { display: flex; justify-content: space-between; align-items: flex-end; gap: 12mm; padding-bottom: 5mm; border-bottom: 2.5pt solid var(--rp-azul); }
+.membrete img { height: 15mm; width: auto; }
+.membrete .datos { text-align: right; color: var(--rp-gris); font-size: 8.5pt; line-height: 1.5; }
+h1 { font-size: 18pt; font-weight: 700; letter-spacing: -0.01em; margin: 7mm 0 1.5mm; }
+.subtitulo { color: var(--rp-tinta-2); margin: 0 0 6mm; }
+.muestra { display: inline-block; font-size: 7.5pt; font-weight: 600; color: var(--rp-ambar); border: 1pt solid var(--rp-ambar); border-radius: 99px; padding: 0.6mm 2.5mm; margin-left: 2mm; vertical-align: middle; }
+h2 { font-size: 11.5pt; font-weight: 600; margin: 8mm 0 1mm; break-after: avoid; }
+h2 + .nota { color: var(--rp-tinta-2); font-size: 8.5pt; margin: 0 0 3mm; }
+
+/* Indicadores */
+.indicadores { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.ind { background: var(--rp-fondo-suave); border-radius: 3mm; padding: 4mm; }
+.ind .valor { font-size: 17pt; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.ind .nombre { color: var(--rp-tinta-2); font-size: 8.5pt; margin-top: 1mm; }
+.ind .cambio { font-size: 7.5pt; margin-top: 1.5mm; }
+.sube { color: var(--rp-verde); } .baja { color: var(--rp-rojo); }
+
+.dos { display: grid; grid-template-columns: 1.55fr 1fr; gap: 5mm; align-items: start; }
+.caja { border: 0.75pt solid var(--rp-linea); border-radius: 3mm; padding: 4mm; break-inside: avoid; }
+.caja h3 { font-size: 9.5pt; font-weight: 600; margin: 0 0 0.5mm; }
+.caja .nota { color: var(--rp-tinta-2); font-size: 8pt; margin: 0 0 2mm; }
+.heroe { font-size: 20pt; font-weight: 700; letter-spacing: -0.01em; }
+
+/* Tablas */
+table { width: 100%; border-collapse: collapse; font-size: 8.5pt; break-inside: auto; }
+th { text-align: left; font-weight: 600; color: var(--rp-gris); font-size: 7.5pt; padding: 2mm 2.5mm; border-bottom: 1pt solid var(--rp-tinta); }
+td { padding: 2mm 2.5mm; border-bottom: 0.5pt solid var(--rp-linea); white-space: nowrap; }
+tr { break-inside: avoid; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.estado { font-weight: 600; }
+.cumple { color: var(--rp-verde); } .no-cumple { color: var(--rp-rojo); } .pendiente { color: var(--rp-ambar); }
+.salto { break-before: page; }
+.firma { margin-top: 5mm; color: var(--rp-tinta-2); font-size: 8pt; border-top: 0.5pt solid var(--rp-linea); padding-top: 3mm; }
+
+/* Gráficas en versión clara */
+.gr { position: relative; --gr-superficie: #ffffff; --gr-tinta: #111111; --gr-tinta-3: #5c6a70; --gr-reja: #e6ebee; --gr-pista: #eef2f4; --gr-serie-1: #1194cb; --gr-malo: #c8423b; --gr-neutro: #9aa5ab; }
+.gr svg { display: block; overflow: visible; font-family: inherit; }
+.gr-burbuja { display: none; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* Barra de acciones: solo en pantalla */
+.acciones-reporte { max-width: 184mm; margin: 0 auto 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; font-size: 10pt; color: var(--rp-tinta-2); }
+.acciones-reporte button { font: 600 10pt Inter, sans-serif; border: 0; border-radius: 99px; padding: 10px 20px; background: var(--rp-azul-texto); color: #fff; cursor: pointer; min-height: 44px; }
+.acciones-reporte button:focus-visible { outline: 2px solid var(--rp-azul); outline-offset: 3px; }
+@media print { .acciones-reporte { display: none; } }
+.estado-carga { text-align: center; color: var(--rp-tinta-2); padding: 20mm 0; }
+.prueba { color: var(--rp-rojo); border-color: var(--rp-rojo); }
+.total td { font-weight: 700; border-top: 1pt solid var(--rp-tinta); }
+.lectura { margin: 2mm 0 0; font-size: 8.5pt; color: var(--rp-tinta-2); }
+.voz { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 5mm; }
+.voz li { break-inside: avoid; border-bottom: 0.5pt solid var(--rp-linea); padding-bottom: 2mm; }
+.voz q { display: block; font-size: 9pt; margin-bottom: 1mm; }
+.voz .meta { font-size: 7.5pt; color: var(--rp-tinta-2); }
+.calor td, .calor th { text-align: center; padding: 1.2mm 0.8mm; font-size: 7.5pt; border-bottom: 0; }
+.calor td { border: 0.5pt solid #fff; }
+.calor .n1 { background: #d6ecf7; } .calor .n2 { background: #a4d4ec; } .calor .n3 { background: #5fb5de; } .calor .n4 { background: #1194cb; color: #fff; }
+.calor th:first-child, .calor td:first-child { text-align: left; color: var(--rp-gris); font-weight: 600; background: none; }
+td.envolver { white-space: normal; }
+.gr * { transition: none !important; }
+table.compacta { font-size: 7.5pt; } table.compacta th, table.compacta td { padding: 1.6mm 1.6mm; }
+h2, h2 + .nota { break-after: avoid; }
+.calor { break-inside: avoid; } .voz { break-inside: auto; }

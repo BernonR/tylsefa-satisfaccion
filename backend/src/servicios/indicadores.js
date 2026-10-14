@@ -272,8 +272,8 @@ async function respuestasDel(opciones, desde, hasta) {
   const { rows } = await consulta(`
     SELECT r.calificacion, r.concreto_compra AS compro, mo.descripcion AS motivo, c.monto_cotizado::float AS monto,
            e.segmento, e.codigo AS "codigoCliente", c.id_vendedor AS "idVendedor", v.nombres || ' ' || v.apellidos AS vendedor,
-           r.fecha_hora_captura AS fecha, r.comentario,
-           (a.id_acuse IS NOT NULL) AS leida, (cs.estado = 'cerrado') AS "casoCerrado",
+           r.fecha_hora_captura AS fecha, r.comentario, c.numero_correlativo AS cotizacion, cs.numero_caso AS caso,
+           c.es_prueba AS "esPrueba", (a.id_acuse IS NOT NULL) AS leida, (cs.estado = 'cerrado') AS "casoCerrado",
            EXISTS (SELECT 1 FROM bitacora_auditoria b WHERE b.accion = 'confirmacion_coaching'
                     AND b.entidad = 'encuesta_respuesta' AND b.id_registro_afectado = r.id_respuesta) AS coaching
       ${ORIGEN}
@@ -304,11 +304,13 @@ async function casosDel(opciones, desde, hasta) {
   const { rows } = await consulta(`
     SELECT cs.fecha_hora_creacion AS creado, cs.fecha_hora_primer_contacto AS contactado, cs.fecha_hora_cierre AS cerrado,
            pl.minutos_primer_contacto AS "minutosContacto", pl.horas_cierre AS "horasCierre",
-           e.segmento, c.id_vendedor AS "idVendedor"
+           e.segmento, c.id_vendedor AS "idVendedor", cs.numero_caso AS numero, cs.estado AS "estadoCaso", e.codigo AS "codigoCliente",
+           r.calificacion, rp.nombres || ' ' || rp.apellidos AS responsable, c.es_prueba AS "esPrueba"
       ${ORIGEN}
       JOIN encuesta_respuesta r ON r.id_cotizacion = c.id_cotizacion
       JOIN caso_servicio cs ON cs.id_respuesta = r.id_respuesta
       JOIN plazo_atencion pl ON pl.id_plazo = cs.id_plazo
+      JOIN usuario rp ON rp.id_usuario = cs.id_responsable
      WHERE ${condiciones.join(' AND ')}
        AND cs.fecha_hora_creacion >= ${INICIO(d)} AND cs.fecha_hora_creacion < ${FIN(h)}`, valores);
   return rows;
@@ -328,7 +330,7 @@ async function vendedoresVisibles(usuario, tipo) {
   return rows;
 }
 
-async function calcular(usuario, { periodo, segmento = '', idVendedor = null, incluirPruebas = false }, ahora = new Date()) {
+async function consultar(usuario, { periodo, segmento = '', idVendedor = null, incluirPruebas = false }) {
   const tipo = alcance(usuario);
   const opciones = { usuario, tipo, segmento, idVendedor, incluirPruebas };
   const [respuestas, anteriores, cotizaciones, casos] = await Promise.all([
@@ -337,7 +339,40 @@ async function calcular(usuario, { periodo, segmento = '', idVendedor = null, in
     cotizacionesDel(opciones, periodo.desde, periodo.hasta),
     casosDel(opciones, periodo.desde, periodo.hasta),
   ]);
-  return resumir({ respuestas, anteriores, cotizaciones, casos, dias: periodo.dias, desde: periodo.desde, ahora });
+  return { respuestas, anteriores, cotizaciones, casos };
 }
 
-module.exports = { alcance, validarPeriodo, resumir, calcular, vendedoresVisibles, cumplimiento };
+async function calcular(usuario, filtrosPedidos, ahora = new Date()) {
+  const datos = await consultar(usuario, filtrosPedidos);
+  const { periodo } = filtrosPedidos;
+  return resumir({ ...datos, dias: periodo.dias, desde: periodo.desde, ahora });
+}
+
+// Listados del reporte exportable (PDF y CSV): cada respuesta y cada caso del periodo.
+function detallar({ respuestas, casos }, ahora = new Date()) {
+  return {
+    respuestas: [...respuestas].sort((a, b) => new Date(a.fecha) - new Date(b.fecha)).map((r) => ({
+      fecha: r.fecha, cotizacion: r.cotizacion, codigoCliente: r.codigoCliente, segmento: r.segmento, vendedor: r.vendedor,
+      calificacion: r.calificacion, compro: r.compro, motivo: r.compro ? null : r.motivo, monto: r.monto, caso: r.caso, esPrueba: r.esPrueba,
+    })),
+    casos: [...casos].sort((a, b) => new Date(b.creado) - new Date(a.creado)).map((c) => {
+      const cumple = cumplimiento(c, ahora);
+      return {
+        numero: c.numero, codigoCliente: c.codigoCliente, segmento: c.segmento, calificacion: c.calificacion, responsable: c.responsable,
+        estado: c.estadoCaso, creado: c.creado, minutosContacto: cumple.tiempoContacto,
+        minutosCierre: c.cerrado ? minutosHabilesEntre(c.creado, c.cerrado) : null, cumplimiento: cumple.estado, esPrueba: c.esPrueba,
+      };
+    }),
+  };
+}
+
+async function reporte(usuario, filtrosPedidos, ahora = new Date()) {
+  const datos = await consultar(usuario, filtrosPedidos);
+  const { periodo } = filtrosPedidos;
+  return {
+    indicadores: resumir({ ...datos, dias: periodo.dias, desde: periodo.desde, ahora }),
+    detalle: detallar(datos, ahora),
+  };
+}
+
+module.exports = { alcance, validarPeriodo, resumir, detallar, calcular, reporte, vendedoresVisibles, cumplimiento };

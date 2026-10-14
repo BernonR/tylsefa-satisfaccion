@@ -17,6 +17,19 @@
         <h1 class="ty-titulo-grande mb-1">Tablero de indicadores</h1>
         <p class="ty-secundario mb-0" id="subtitulo">Resultados del periodo seleccionado.</p>
       </div>
+      <div class="dropdown" id="caja-exportar" hidden>
+        <button class="btn btn-ty-secundario dropdown-toggle" type="button" id="exportar" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-download" aria-hidden="true"></i>Exportar
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end ty-menu-exportar" aria-labelledby="exportar">
+          <li><button class="dropdown-item" type="button" data-exportar="pdf"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>Reporte completo (PDF)</button></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><button class="dropdown-item" type="button" data-exportar="respuestas"><i class="bi bi-filetype-csv" aria-hidden="true"></i>Respuestas (CSV)</button></li>
+          <li><button class="dropdown-item" type="button" data-exportar="vendedores"><i class="bi bi-filetype-csv" aria-hidden="true"></i>Resultados por vendedor (CSV)</button></li>
+          <li><button class="dropdown-item" type="button" data-exportar="casos"><i class="bi bi-filetype-csv" aria-hidden="true"></i>Casos de servicio (CSV)</button></li>
+          <li><button class="dropdown-item" type="button" data-exportar="motivos"><i class="bi bi-filetype-csv" aria-hidden="true"></i>Motivos de no compra (CSV)</button></li>
+        </ul>
+      </div>
     </header>
 
     <form class="ty-filtros ty-tablero-filtros" id="filtros" role="search" aria-label="Filtros del tablero" novalidate>

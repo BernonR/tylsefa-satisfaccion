@@ -894,3 +894,10 @@ body.ty-pendiente .ty-app { visibility: hidden; }
 .ty-voz li { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 1rem; border-bottom: 1px solid var(--ty-linea); }
 .ty-voz blockquote { margin: 0; font-size: 0.9375rem; line-height: 1.5; overflow-wrap: anywhere; }
 @media (max-width: 991.98px) { .ty-voz { grid-template-columns: minmax(0, 1fr); } }
+.ty-menu-exportar { --bs-dropdown-bg: var(--ty-superficie-2); --bs-dropdown-border-color: var(--ty-linea-fuerte); --bs-dropdown-border-radius: var(--ty-radio); --bs-dropdown-link-hover-bg: var(--ty-superficie-3); --bs-dropdown-link-active-bg: var(--ty-marca-suave); --bs-dropdown-link-color: var(--ty-texto); --bs-dropdown-link-hover-color: var(--ty-texto); --bs-dropdown-divider-bg: var(--ty-linea-fuerte); box-shadow: var(--ty-sombra-alta); padding: 0.375rem; }
+.ty-menu-exportar .dropdown-item { display: flex; align-items: center; gap: 0.625rem; min-height: 42px; border-radius: var(--ty-radio-sm); font-size: 0.9375rem; }
+.ty-menu-exportar .dropdown-item .bi { color: var(--ty-texto-2); }
+#exportar .bi { margin-right: 0.5rem; }
+.ty-depuracion { margin-top: 1.5rem; display: flex; gap: 1.5rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.ty-depuracion .texto { flex: 1 1 24rem; max-width: 46rem; }
+.ty-depuracion .btn .bi { margin-right: 0.5rem; }
