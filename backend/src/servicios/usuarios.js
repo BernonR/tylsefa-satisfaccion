@@ -107,7 +107,32 @@ function publico(u) {
   };
 }
 
+// Contraseña temporal pendiente de cambio (RS: cambio obligatorio en el primer ingreso).
+// Se deduce de la bitácora, sin columnas nuevas: hay cambio pendiente si un administrador
+// creó la cuenta o le restableció la contraseña desde la aplicación y, después de eso,
+// la persona no la ha cambiado ella misma. Solo cuentan los registros desde que esta regla
+// entró en vigor, para no tocar las cuentas que ya existían.
+const CAMBIO_OBLIGATORIO_DESDE = '2026-11-02T00:00:00-06:00';
+
+async function contrasenaTemporalPendiente(id) {
+  const { rows } = await consulta(`
+    SELECT EXISTS (
+      SELECT 1 FROM bitacora_auditoria t
+       WHERE t.entidad = 'usuario' AND t.id_registro_afectado = $1
+         AND t.accion IN ('alta_usuario', 'restablecer_contrasena')
+         AND t.id_usuario IS NOT NULL AND t.id_usuario <> t.id_registro_afectado
+         AND t.fecha_hora >= $2::timestamptz
+         AND NOT EXISTS (
+           SELECT 1 FROM bitacora_auditoria c
+            WHERE c.accion = 'cambio_contrasena' AND c.entidad = 'usuario'
+              AND c.id_registro_afectado = t.id_registro_afectado AND c.id_usuario = t.id_registro_afectado
+              AND c.fecha_hora > t.fecha_hora)
+    ) AS pendiente`, [id, CAMBIO_OBLIGATORIO_DESDE]);
+  return rows[0].pendiente === true;
+}
+
 module.exports = {
   buscarPorCorreo, buscarPorId, listar, listarSupervisores, correoEnUso, esSupervisorActivo,
   vendedoresACargo, crear, actualizar, cambiarEstado, cambiarContrasena, publico,
+  contrasenaTemporalPendiente, CAMBIO_OBLIGATORIO_DESDE,
 };

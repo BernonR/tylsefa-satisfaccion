@@ -14,3 +14,9 @@ docs/
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
+
+# Documentos y respaldos que no forman parte del código: manuales, tesis y copias del historial
+*outputs/
+*.pdf
+*.docx
+*.bundle

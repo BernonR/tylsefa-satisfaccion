@@ -62,6 +62,7 @@ test.beforeAll(async ({ browser }) => {
   const alta = await admin.request.post('/api/usuarios', { data: { nombres: 'Vendedor', apellidos: 'Terminal', correo: `m04-${azar()}@pruebas.tylsefa.com`, perfil: 'vendedor', idSupervisor, clave: 'Temporal2026x' } });
   expect(alta.status()).toBe(201);
   idVendedor = (await alta.json()).id;
+  await bd.primerCambioHecho(idVendedor);
   for (const segmento of ['minorista', 'mayorista']) {
     const r = await admin.request.post('/api/clientes', { data: { nombre: `Prueba automática M04 ${segmento} ${azar()}`, segmento, correo: 'm04@prueba.tylsefa.com' } });
     expect(r.status()).toBe(201);

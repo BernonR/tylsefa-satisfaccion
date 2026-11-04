@@ -39,6 +39,7 @@ test.beforeAll(async ({ browser }) => {
   });
   expect(alta.status()).toBe(201);
   vendedora = { id: (await alta.json()).id, correo, nombre: 'Vendedora Flujo Completo' };
+  await bd.primerCambioHecho(vendedora.id);
   const r = await admin.request.post('/api/clientes', { data: { nombre: `Prueba automática Flujo ${azar()}`, segmento: 'minorista', correo: 'flujo@prueba.tylsefa.com', contacto: 'Contacto Prueba' } });
   expect(r.status()).toBe(201);
   cliente = (await r.json()).cliente;

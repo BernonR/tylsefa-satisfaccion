@@ -80,7 +80,7 @@
   construirEstructura();
 
   // ---------- Cambiar mi contraseña (todos los perfiles) ----------
-  function prepararCambioDeClave() {
+  function prepararCambioDeClave(obligatorio = false) {
     const nodo = document.createElement('div');
     nodo.className = 'modal fade ty-dialogo';
     nodo.id = 'dialogo-clave';
@@ -89,10 +89,11 @@
     nodo.innerHTML = `
       <div class="modal-dialog modal-dialog-centered"><form class="modal-content" novalidate>
         <div class="modal-header">
-          <h2 class="modal-title" id="dialogo-clave-titulo">Cambiar mi contraseña</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          <h2 class="modal-title" id="dialogo-clave-titulo">${obligatorio ? 'Cambie su contraseña temporal' : 'Cambiar mi contraseña'}</h2>
+          ${obligatorio ? '' : '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>'}
         </div>
         <div class="modal-body">
+          ${obligatorio ? '<p class="ty-secundario mb-3" id="clave-obligatoria">Por seguridad, cambie la contraseña temporal que le asignó el administrador antes de continuar. Escriba la temporal como contraseña actual.</p>' : ''}
           <div class="mb-3"><label class="form-label" for="clave-actual">Contraseña actual</label>
             <input class="form-control" type="password" id="clave-actual" name="actual" autocomplete="current-password" required></div>
           <div class="mb-3"><label class="form-label" for="clave-nueva">Nueva contraseña</label>
@@ -102,13 +103,14 @@
             <input class="form-control" type="password" id="clave-repetir" name="repetir" autocomplete="new-password" required></div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-ty-secundario" data-bs-dismiss="modal">Cancelar</button>
+          ${obligatorio ? '<button type="button" class="btn btn-ty-secundario" data-accion="salir">Cerrar sesión</button>' : '<button type="button" class="btn btn-ty-secundario" data-bs-dismiss="modal">Cancelar</button>'}
           <button type="submit" class="btn btn-ty-primario" id="guardar-clave">Cambiar contraseña</button>
         </div>
       </form></div>`;
     document.body.appendChild(nodo);
     const formulario = nodo.querySelector('form');
-    const modal = new bootstrap.Modal(nodo);
+    // Si el cambio es obligatorio, la ventana no se cierra con Escape ni haciendo clic afuera.
+    const modal = new bootstrap.Modal(nodo, obligatorio ? { backdrop: 'static', keyboard: false } : {});
     document.getElementById('cambiar-clave').addEventListener('click', () => {
       formulario.reset();
       UI.limpiarErrores(formulario);
@@ -123,6 +125,7 @@
       UI.ocupado(boton, true);
       try {
         const r = await Api.pedir('/api/sesion/contrasena', { metodo: 'POST', datos: { actual, nueva } });
+        if (obligatorio) { location.replace('inicio.html'); return; }
         modal.hide();
         Tylsefa.aviso(r.mensaje);
       } catch (error) {
@@ -295,14 +298,19 @@
   }
 
   // ---------- Arranque ----------
-  const listo = Api.pedir('/api/sesion').then(({ usuario, minutos: m }) => {
+  const listo = Api.pedir('/api/sesion').then(({ usuario, minutos: m, cambioObligatorio }) => {
     minutos = m;
     armarMenu(usuario);
     mostrarUsuario(usuario);
+    prepararCambioDeClave(cambioObligatorio);
     document.querySelectorAll('[data-accion="salir"]').forEach((b) => b.addEventListener('click', () => salir('salida')));
-    prepararCambioDeClave();
     document.body.classList.remove('ty-pendiente');
     iniciarVigilancia();
+    if (cambioObligatorio) {
+      // Primer ingreso con contraseña temporal: se pide el cambio antes de cualquier otra cosa.
+      document.getElementById('cambiar-clave').click();
+      return new Promise(() => {}); // la pantalla no carga sus datos hasta que se cambie
+    }
     mostrarAvisos(usuario);
     return usuario;
   });

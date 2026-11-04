@@ -44,3 +44,13 @@ test('CP-U10 el cierre por inactividad se acepta poco después del vencimiento, 
   assert.equal(leerComprobante(c, config, vencido, 120_000).sub, 7);
   assert.equal(leerComprobante(c, config, AHORA + 18 * 60_000, 120_000), null);
 });
+
+test('CP-U28 la marca de contraseña temporal viaja firmada en el comprobante y no se puede quitar', () => {
+  const c = crearComprobante(7, config, AHORA, { cambio: true });
+  assert.equal(leerComprobante(c, config, AHORA).cambio, true);
+  assert.equal(leerComprobante(crearComprobante(7, config, AHORA), config, AHORA).cambio, undefined);
+  // Quitar la marca cambia el contenido y la firma deja de coincidir.
+  const [, firma] = c.split('.');
+  const sinMarca = Buffer.from(JSON.stringify({ sub: 7, exp: AHORA + 15 * 60_000 })).toString('base64url');
+  assert.equal(leerComprobante(`${sinMarca}.${firma}`, config, AHORA), null);
+});
