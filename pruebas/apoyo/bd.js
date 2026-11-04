@@ -44,4 +44,14 @@ async function limpiarCatalogos() {
   await consulta("DELETE FROM empresa_cliente WHERE nombre LIKE 'Prueba automática %'");
 }
 
-module.exports = { pool, consulta, ultimaAccion, limpiarCatalogos, cerrar: () => pool.end() };
+// Las cuentas que crean las pruebas por la API nacen con contraseña temporal y el sistema
+// pediría cambiarla en el primer ingreso. Para las pruebas que no tratan de eso, se deja
+// registrado en la bitácora que la persona ya hizo su cambio, como pasaría en la realidad.
+async function primerCambioHecho(idUsuario) {
+  await consulta(
+    "INSERT INTO bitacora_auditoria (id_usuario, accion, entidad, id_registro_afectado, detalle) VALUES ($1, 'cambio_contrasena', 'usuario', $1, 'Preparación de las pruebas')",
+    [idUsuario],
+  );
+}
+
+module.exports = { pool, consulta, ultimaAccion, limpiarCatalogos, primerCambioHecho, cerrar: () => pool.end() };

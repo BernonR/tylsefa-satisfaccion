@@ -59,6 +59,7 @@ test.beforeAll(async ({ browser }) => {
   const alta = await admin.request.post('/api/usuarios', { data: { nombres: 'Vendedora', apellidos: 'Casos', correo, perfil: 'vendedor', idSupervisor, clave: CLAVE_TEMPORAL } });
   expect(alta.status()).toBe(201);
   vendedor = { id: (await alta.json()).id, correo };
+  await bd.primerCambioHecho(vendedor.id);
   for (const segmento of ['minorista', 'mayorista']) {
     const r = await admin.request.post('/api/clientes', { data: { nombre: `Prueba automática M05 ${segmento} ${azar()}`, segmento, correo: 'm05@prueba.tylsefa.com', contacto: 'Contacto Prueba' } });
     expect(r.status()).toBe(201);
@@ -135,7 +136,9 @@ test('CP-M05-04 el vendedor no entra a los casos y un supervisor no ve casos aje
 
   const admin = await contexto(browser, usuarios.administrador.correo);
   const otroCorreo = `m05-${azar()}@pruebas.tylsefa.com`;
-  expect((await admin.request.post('/api/usuarios', { data: { nombres: 'Otro', apellidos: 'Supervisor', correo: otroCorreo, perfil: 'supervisor', clave: CLAVE_TEMPORAL } })).status()).toBe(201);
+  const altaOtro = await admin.request.post('/api/usuarios', { data: { nombres: 'Otro', apellidos: 'Supervisor', correo: otroCorreo, perfil: 'supervisor', clave: CLAVE_TEMPORAL } });
+  expect(altaOtro.status()).toBe(201);
+  await bd.primerCambioHecho((await altaOtro.json()).id);
   await admin.close();
   const otro = await contexto(browser, otroCorreo, CLAVE_TEMPORAL);
   expect((await otro.request.get(`/api/casos/${caso.id}`)).status()).toBe(404);

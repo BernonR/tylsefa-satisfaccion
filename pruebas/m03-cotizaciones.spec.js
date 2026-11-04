@@ -125,6 +125,7 @@ test('CP-M03-05 el vendedor ve solo sus cotizaciones y no puede registrar', asyn
   const alta = await admin.request.post('/api/usuarios', { data: { nombres: 'Otro', apellidos: 'Vendedor', correo: `m03-${azar()}@pruebas.tylsefa.com`, perfil: 'vendedor', idSupervisor: sup.id_usuario, clave: CLAVE_TEMPORAL } });
   expect(alta.status()).toBe(201);
   const idOtro = (await alta.json()).id;
+  await bd.primerCambioHecho(idOtro);
   await admin.close();
 
   await request.post('/api/sesion', { data: { correo: usuarios.supervisor.correo, clave: clave() } });

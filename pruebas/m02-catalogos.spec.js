@@ -106,10 +106,15 @@ test.describe('Usuarios', () => {
     await sesionApi(request, 'administrador');
     const correo = correoNuevo();
     await request.post('/api/usuarios', { data: { nombres: 'Propia', apellidos: 'Prueba', correo, perfil: 'gerente', clave: CLAVE_TEMPORAL } });
+    // El primer cambio (obligatorio) se hace por la API; aquí se prueba el cambio voluntario desde el menú.
+    const cuenta = await page.context().browser().newContext({ baseURL: 'http://localhost:3000' });
+    await cuenta.request.post('/api/sesion', { data: { correo, clave: CLAVE_TEMPORAL } });
+    expect((await cuenta.request.post('/api/sesion/contrasena', { data: { actual: CLAVE_TEMPORAL, nueva: 'Propia2026' } })).status()).toBe(200);
+    await cuenta.close();
 
     const acceso = new PaginaAcceso(page);
     await acceso.abrir();
-    await acceso.ingresar(correo, CLAVE_TEMPORAL);
+    await acceso.ingresar(correo, 'Propia2026');
     await new PaginaPanel(page).esperarCarga();
     await page.locator('#cambiar-clave').click();
     const dialogo = page.locator('#dialogo-clave');
@@ -119,10 +124,69 @@ test.describe('Usuarios', () => {
     await dialogo.getByRole('button', { name: 'Cambiar contraseña' }).click();
     await expect(dialogo.getByText('La contraseña actual no es correcta.')).toBeVisible();
 
-    await dialogo.getByLabel('Contraseña actual').fill(CLAVE_TEMPORAL);
+    await dialogo.getByLabel('Contraseña actual').fill('Propia2026');
     await dialogo.getByRole('button', { name: 'Cambiar contraseña' }).click();
     await expect(page.locator('.toast')).toContainText('Su contraseña se cambió');
     expect((await page.request.post('/api/sesion', { data: { correo, clave: 'MiNueva2026' } })).status()).toBe(200);
+  });
+
+  test('CP-M02-13 una cuenta nueva debe cambiar la contraseña temporal en el primer ingreso', async ({ request, page }) => {
+    await sesionApi(request, 'administrador');
+    const correo = correoNuevo();
+    await request.post('/api/usuarios', { data: { nombres: 'Primer', apellidos: `Ingreso ${azar()}`, correo, perfil: 'vendedor', idSupervisor: await idSupervisorDePrueba(), clave: CLAVE_TEMPORAL } });
+
+    const acceso = new PaginaAcceso(page);
+    await acceso.abrir();
+    await acceso.ingresar(correo, CLAVE_TEMPORAL);
+    await expect(page).toHaveURL(/inicio\.html/);
+    const dialogo = page.locator('#dialogo-clave');
+    await expect(dialogo).toBeVisible();
+    await expect(dialogo.getByRole('heading')).toHaveText('Cambie su contraseña temporal');
+    await expect(dialogo.locator('.btn-close')).toHaveCount(0);
+    // No se cierra con Escape y la API no atiende otras funciones mientras no la cambie.
+    await page.keyboard.press('Escape');
+    await expect(dialogo).toBeVisible();
+    const bloqueada = await page.request.get('/api/cotizaciones');
+    expect(bloqueada.status()).toBe(403);
+    expect((await bloqueada.json()).codigo).toBe('cambio_contrasena');
+    // Abrir otra pantalla por su dirección vuelve a pedir el cambio.
+    await page.goto('/cotizaciones.html');
+    await expect(page.locator('#dialogo-clave')).toBeVisible();
+
+    await dialogo.getByLabel('Contraseña actual').fill(CLAVE_TEMPORAL);
+    await dialogo.getByLabel('Nueva contraseña', { exact: true }).fill('Definitiva2026');
+    await dialogo.getByLabel('Repita la nueva contraseña').fill('Definitiva2026');
+    await dialogo.getByRole('button', { name: 'Cambiar contraseña' }).click();
+    await new PaginaPanel(page).esperarCarga();
+    await expect(page.locator('#dialogo-clave')).toBeHidden();
+    expect((await page.request.get('/api/cotizaciones')).status()).toBe(200);
+    // En el siguiente ingreso ya no se le pide.
+    const otra = await page.context().browser().newContext({ baseURL: 'http://localhost:3000' });
+    const r = await otra.request.post('/api/sesion', { data: { correo, clave: 'Definitiva2026' } });
+    expect((await r.json()).cambioObligatorio).toBe(false);
+    await otra.close();
+  });
+
+  test('CP-M02-14 el restablecimiento vuelve a exigir el cambio y las cuentas existentes no se tocan', async ({ request, browser }) => {
+    // Cuenta existente (cargada sin pasar por el alta de la aplicación): entra sin cambio obligatorio.
+    const existente = await browser.newContext({ baseURL: 'http://localhost:3000' });
+    const r1 = await existente.request.post('/api/sesion', { data: { correo: usuarios.vendedor.correo, clave: clave() } });
+    expect((await r1.json()).cambioObligatorio).toBe(false);
+    await existente.close();
+
+    await sesionApi(request, 'administrador');
+    const correo = correoNuevo();
+    const alta = await request.post('/api/usuarios', { data: { nombres: 'Restablecida', apellidos: `Cuenta ${azar()}`, correo, perfil: 'gerente', clave: CLAVE_TEMPORAL } });
+    const { id } = await alta.json();
+    const cuenta = await browser.newContext({ baseURL: 'http://localhost:3000' });
+    await cuenta.request.post('/api/sesion', { data: { correo, clave: CLAVE_TEMPORAL } });
+    await cuenta.request.post('/api/sesion/contrasena', { data: { actual: CLAVE_TEMPORAL, nueva: 'Propia2026' } });
+    expect((await (await cuenta.request.post('/api/sesion', { data: { correo, clave: 'Propia2026' } })).json()).cambioObligatorio).toBe(false);
+
+    await request.post(`/api/usuarios/${id}/contrasena`, { data: { clave: 'Restablecida2026' } });
+    const r2 = await cuenta.request.post('/api/sesion', { data: { correo, clave: 'Restablecida2026' } });
+    expect((await r2.json()).cambioObligatorio).toBe(true);
+    await cuenta.close();
   });
 
   test('CP-M02-07 un supervisor no puede administrar usuarios ni empresas (403)', async ({ request }) => {

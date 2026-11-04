@@ -15,8 +15,11 @@ function firmar(contenido, secreto) {
   return crypto.createHmac('sha256', secreto).update(contenido).digest('base64url');
 }
 
-function crearComprobante(idUsuario, { secreto, minutos }, ahora = Date.now()) {
-  const contenido = b64(JSON.stringify({ sub: idUsuario, exp: ahora + minutos * 60 * 1000 }));
+// "cambio": la persona entró con una contraseña temporal y debe cambiarla antes de usar el sistema.
+function crearComprobante(idUsuario, { secreto, minutos }, ahora = Date.now(), { cambio = false } = {}) {
+  const datos = { sub: idUsuario, exp: ahora + minutos * 60 * 1000 };
+  if (cambio) datos.cambio = true;
+  const contenido = b64(JSON.stringify(datos));
   return `${contenido}.${firmar(contenido, secreto)}`;
 }
 

@@ -31,6 +31,11 @@
     if (respuesta.status === 204) return null;
 
     const cuerpo = await respuesta.json().catch(() => ({}));
+    // Contraseña temporal sin cambiar: se lleva a la persona al inicio, donde se le pide cambiarla.
+    if (respuesta.status === 403 && cuerpo.codigo === 'cambio_contrasena' && redirigir && document.body.dataset.pagina !== 'inicio') {
+      location.replace('inicio.html');
+      return new Promise(() => {});
+    }
     if (!respuesta.ok) {
       throw new ErrorApi(cuerpo.mensaje || 'Ocurrió un error inesperado. Intente de nuevo.', respuesta.status, cuerpo.errores);
     }

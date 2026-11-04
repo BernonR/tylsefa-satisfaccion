@@ -7,7 +7,7 @@ const config = require('../config');
 const { crearComprobante, leerComprobante, leerCookies, cookieSesion, cookieBorrada } = require('../seguridad/sesion');
 const { verificar, generarResumen, revisarPolitica } = require('../seguridad/contrasenas');
 const { crearFreno } = require('../seguridad/intentos');
-const { exigirSesion } = require('../middleware/autenticacion');
+const { exigirSesionPropia } = require('../middleware/autenticacion');
 const usuarios = require('../servicios/usuarios');
 const bitacora = require('../servicios/bitacora');
 
@@ -50,20 +50,21 @@ rutas.post('/', async (req, res) => {
   }
 
   freno.exito(req.ip, correo);
-  res.setHeader('Set-Cookie', cookieSesion(crearComprobante(usuario.id_usuario, config.sesion), config.sesion));
+  const cambio = await usuarios.contrasenaTemporalPendiente(usuario.id_usuario);
+  res.setHeader('Set-Cookie', cookieSesion(crearComprobante(usuario.id_usuario, config.sesion, Date.now(), { cambio }), config.sesion));
   await bitacora.registrar({ idUsuario: usuario.id_usuario, accion: 'inicio_sesion', entidad: 'sesion' });
-  res.json({ usuario: usuarios.publico(usuario), minutos: config.sesion.minutos });
+  res.json({ usuario: usuarios.publico(usuario), minutos: config.sesion.minutos, cambioObligatorio: cambio });
 });
 
-rutas.get('/', exigirSesion, (req, res) => {
-  res.json({ usuario: usuarios.publico(req.usuario), minutos: config.sesion.minutos });
+rutas.get('/', exigirSesionPropia, (req, res) => {
+  res.json({ usuario: usuarios.publico(req.usuario), minutos: config.sesion.minutos, cambioObligatorio: req.cambioPendiente });
 });
 
 // Renueva la sesión cuando la persona sigue activa en la pantalla.
-rutas.post('/renovar', exigirSesion, (req, res) => res.status(204).end());
+rutas.post('/renovar', exigirSesionPropia, (req, res) => res.status(204).end());
 
 // Cada persona puede cambiar su propia contraseña escribiendo la actual.
-rutas.post('/contrasena', exigirSesion, async (req, res) => {
+rutas.post('/contrasena', exigirSesionPropia, async (req, res) => {
   const actual = typeof req.body?.actual === 'string' ? req.body.actual : '';
   const nueva = typeof req.body?.nueva === 'string' ? req.body.nueva : '';
   if (!(await verificar(actual, req.usuario.hash_contrasena))) {
@@ -74,6 +75,8 @@ rutas.post('/contrasena', exigirSesion, async (req, res) => {
   if (nueva === actual) return res.status(400).json({ mensaje: 'Revise los datos marcados.', errores: { nueva: 'La nueva contraseña debe ser distinta de la actual.' } });
   await usuarios.cambiarContrasena(req.usuario.id_usuario, await generarResumen(nueva));
   await bitacora.registrar({ idUsuario: req.usuario.id_usuario, accion: 'cambio_contrasena', entidad: 'usuario', idRegistro: req.usuario.id_usuario });
+  // Si era la contraseña temporal, la sesión queda libre para usar el sistema.
+  res.setHeader('Set-Cookie', cookieSesion(crearComprobante(req.usuario.id_usuario, config.sesion), config.sesion));
   res.json({ mensaje: 'Su contraseña se cambió correctamente.' });
 });
 

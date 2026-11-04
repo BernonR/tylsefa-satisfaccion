@@ -53,6 +53,7 @@ test.beforeAll(async ({ browser }) => {
   });
   expect(otro.status()).toBe(201);
   const idOtro = (await otro.json()).id;
+  await bd.primerCambioHecho(idOtro);
   for (const [clave, idSupervisor] of [['equipo', sup.id_usuario], ['ajeno', idOtro]]) {
     const correo = `m06-${clave}-${azar()}@pruebas.tylsefa.com`;
     const alta = await admin.request.post('/api/usuarios', {
@@ -60,6 +61,7 @@ test.beforeAll(async ({ browser }) => {
     });
     expect(alta.status()).toBe(201);
     const vendedor = { id: (await alta.json()).id, correo };
+    await bd.primerCambioHecho(vendedor.id);
     if (clave === 'equipo') equipo = vendedor; else ajeno = vendedor;
   }
   for (const segmento of ['minorista', 'mayorista']) {
